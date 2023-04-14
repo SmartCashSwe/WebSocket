@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
 import json
+import random
 
 class PrnConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -14,7 +15,7 @@ class PrnConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-
+        print(text_data)
         # Send message to pcRegister
         await self.channel_layer.group_send(
             'pcRegister_group', # Group name
@@ -39,11 +40,12 @@ class PrnConsumer(AsyncWebsocketConsumer):
     async def pcRegister_message(self, event):
         message = event['message']
         reply_channel = event['reply_channel']
+        print("hdjsak")
 
         # Implement your message handling logic here
-
+        
         response = {
-            'message': 'Response message goes here'
+            'message': random.randint(1, 100)
         }
 
         # Send response to Prn
@@ -57,4 +59,5 @@ class PrnConsumer(AsyncWebsocketConsumer):
 
     async def prn_message(self, event):
         message = event['message']
+        print("fasdsa")
         await self.send(json.dumps(message))
