@@ -8,3 +8,6 @@ def index(request):
 
 def room(request, room_name):
     return render(request, "personalnumber/room.html", {"room_name": room_name})
+
+def pcRoom(request, room_name):
+    return render(request, "personalnumber/pcRoom.html", {"room_name": room_name})

@@ -1,63 +1,108 @@
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.layers import get_channel_layer
 import json
-import random
+from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from .models import Pc_user, Mobile_user
 
-class PrnConsumer(AsyncWebsocketConsumer):
+
+class MobileConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.channel_layer = get_channel_layer()
+        self.personal_number = self.scope['url_route']['kwargs']['personal_number']
+        self.pc_identifier = self.scope['url_route']['kwargs']['pc_identifier']
+
+        await self.check_mobile_user_exists()
+        await self.check_pc_user_exists()
+
         await self.channel_layer.group_add(
-            'pcRegister_group', # Group name
+            self.pc_identifier,
             self.channel_name
         )
+
         await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.pc_identifier,
+            self.channel_name
+        )
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        print(text_data)
-        # Send message to pcRegister
+
         await self.channel_layer.group_send(
-            'pcRegister_group', # Group name
+            self.pc_identifier,
             {
-                'type': 'pcRegister_message',
+                'type': 'forward_message',
                 'message': message,
-                'reply_channel': self.channel_name,
+                'personal_number': self.personal_number
             }
         )
 
-        # Wait for response from pcRegister
-        response = await self.wait_for_response()
+    async def forward_message(self, event):
+        if event['personal_number'] in self.allowed_mobile_users:
+            message = event['message']
+            await self.send(text_data=json.dumps({
+                'message': message
+            }))
 
-        await self.send(json.dumps(response))
+    @database_sync_to_async
+    def check_mobile_user_exists(self):
+        try:
+            self.mobile_user = Mobile_user.objects.get(personal_number=self.personal_number)
+            self.allowed_mobile_users = self.mobile_user.pc_user.mobile_users
+        except Mobile_user.DoesNotExist:
+            self.mobile_user = None
 
-    async def wait_for_response(self):
-        while True:
-            message = await self.channel_layer.receive(self.channel_name)
-            if message.get('type') == 'pcRegister_message':
-                return message
+    @database_sync_to_async
+    def check_pc_user_exists(self):
+        try:
+            self.pc_user = Pc_user.objects.get(pcIdentifier=self.pc_identifier)
+        except Pc_user.DoesNotExist:
+            self.pc_user = None
 
-    async def pcRegister_message(self, event):
-        message = event['message']
-        reply_channel = event['reply_channel']
-        print("hdjsak")
 
-        # Implement your message handling logic here
-        
-        response = {
-            'message': random.randint(1, 100)
-        }
+class PcConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.pc_identifier = self.scope['url_route']['kwargs']['pc_identifier']
+        await self.check_pc_user_exists()
 
-        # Send response to Prn
-        await self.channel_layer.send(
-            reply_channel,
-            {
-                'type': 'prn_message',
-                'message': response,
-            }
+        await self.channel_layer.group_add(
+            self.pc_identifier,
+            self.channel_name
         )
 
-    async def prn_message(self, event):
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.pc_identifier,
+            self.channel_name
+        )
+
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        personal_number = text_data_json['personal_number']
+
+        if personal_number in self.allowed_mobile_users:
+            await self.channel_layer.group_send(
+                self.pc_identifier,
+                {
+                    'type': 'forward_message',
+                    'message': message
+                }
+            )
+
+    async def forward_message(self, event):
         message = event['message']
-        print("fasdsa")
-        await self.send(json.dumps(message))
+        await self.send(text_data=json.dumps({
+            'message': message
+        }))
+
+    @database_sync_to_async
+    def check_pc_user_exists(self):
+        try:
+            self.pc_user = Pc_user.objects.get(pcIdentifier=self.pc_identifier)
+            self.allowed_mobile_users = self.pc_user.mobile_users
+        except Pc_user.DoesNotExist:
+            self.pc_user = None
