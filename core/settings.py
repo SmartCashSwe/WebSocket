@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-
+SESSION_SAVE_EVERY_REQUEST=True
 
 INSTALLED_APPS = [
     'daphne',
