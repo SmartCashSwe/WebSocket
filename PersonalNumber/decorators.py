@@ -2,6 +2,7 @@ import functools
 from django.shortcuts import redirect
 from django.contrib import messages
 from .models import Pc_user
+from django.contrib.sessions.models import Session
 
 
 def pc_is_authenticated(view_func, redirect_url="prn:pc_login"):
@@ -12,17 +13,13 @@ def pc_is_authenticated(view_func, redirect_url="prn:pc_login"):
     """
     @functools.wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        print("hahahahahahahahah")
-        print(request.session.__dict__)
+        user=Session.objects.get(session_key=request.session.session_key)
         try:
-          post_pcIdentifier=request.session["identifier"]
+          post_pcIdentifier=request.session["pcIdentifier"]
+          
           pc=Pc_user.objects.get(pcIdentifier=post_pcIdentifier)
-          print("sdaaaaaaaaaaaaaaaaaaa")
-          print(pc.pcIdentifier)
-          print("sdaaaaaaaaaaaaaaaaaaa")
           return view_func(request,*args, **kwargs)
         except:
           messages.info(request, "You need to be logged in")
-          print("You need to be logged out")
           return redirect(redirect_url)
     return wrapper

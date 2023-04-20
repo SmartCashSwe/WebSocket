@@ -94,9 +94,16 @@ class PcConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+    async def get_session_type(self, session):
+        pass
+
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
+        print(self.scope["session"])
+        if "pcIdentifier" in self.scope["session"]:
+            print(self.scope["session"]["pcIdentifier"])
+            await database_sync_to_async()
 
 
         await self.channel_layer.group_send(

@@ -28,7 +28,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-SESSION_SAVE_EVERY_REQUEST=True
 
 INSTALLED_APPS = [
     'daphne',
@@ -42,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -139,3 +138,4 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
