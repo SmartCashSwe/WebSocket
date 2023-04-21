@@ -44,3 +44,27 @@ def log_in_pc(request):
             return HttpResponse (status=400)
     elif request.method=="GET":
         return render(request, "personalnumber/pc_login.html")
+@csrf_exempt
+def log_in_pc(request):
+    if request.method=="POST":
+        print("hahahahah")
+        try:
+            # print(request.POST)
+            data = json.loads(request.body)
+            post_identifier = data.get('personal_number')
+    
+            identifier=Mobile_user.objects.get(personal_number=post_identifier)
+        except:
+            return HttpResponse(status=404)
+        try:
+            request.session.set_expiry(0)
+            request.session.set_test_cookie()
+            request.session["pcIdentifier"]=str( data.get('identifier'))
+            request.session["personal_number"]=identifier.personal_number
+            request.session.modified=True
+            # request.session.save()
+            return HttpResponse(status=200)
+        except:
+            return HttpResponse (status=400)
+    elif request.method=="GET":
+        return render(request, "personalnumber/pc_login.html")

@@ -78,15 +78,27 @@ class MobileConsumer(AsyncWebsocketConsumer):
 
 class PcConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.pc_identifier = self.scope['url_route']['kwargs']['pc_identifier']
-        await self.check_pc_user_exists()
+        if "personal_number" not in self.scope["session"]:
+            pc=self.scope["session"]["pcIdentifier"]
+            user=await database_sync_to_async(Pc_user.objects.get)(pcIdentifier=pc)
+            self.isPc=True
+            print(user.pcIdentifier)
+            self.pc_identifier = self.scope['url_route']['kwargs']['pc_identifier']
+            await self.check_pc_user_exists()
 
-        await self.channel_layer.group_add(
-            self.pc_identifier,
-            self.channel_name
-        )
+            await self.channel_layer.group_add(
+                self.pc_identifier,
+                self.channel_name
+            )
 
-        await self.accept()
+            await self.accept()
+        else:
+            mobile_user=await database_sync_to_async(Mobile_user.objects.get)(personal_number=self.scope["session"]["personal_number"])
+            if mobile_user.personal_number in self.allowed_mobile_users:
+                await self.channel_layer.group_add(
+                    self.allowed_mobile_users[mobile_user.personal_number],
+                    self.channel_name
+                )   
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -101,13 +113,12 @@ class PcConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         print(self.scope["session"])
-        if "pcIdentifier" in self.scope["session"]:
-            print(self.scope["session"]["pcIdentifier"])
-            await database_sync_to_async()
+        reciever=text_data['reciever']
 
 
+        
         await self.channel_layer.group_send(
-            self.pc_identifier,
+            reciever,
             {
                 'type': 'forward_message',
                 'message': message
