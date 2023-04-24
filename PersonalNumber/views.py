@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.views.decorators.csrf import csrf_exempt
 from .models import Pc_user, Mobile_user
-from .decorators import pc_is_authenticated
+from .decorators import pc_is_authenticated, mobile_is_authenticated
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 
@@ -11,21 +11,20 @@ import json
 def index(request):
     return render(request, "personalnumber/index.html")
 
+@mobile_is_authenticated
 def room(request, room_name):
     return render(request, "personalnumber/room.html", {"room_name": room_name})
 
 @pc_is_authenticated
 def pcRoom(request, room_name):
-    print(request.session.__dict__)
     return render(request, "personalnumber/pcRoom.html", {"room_name": room_name})
 
 
 @csrf_exempt
 def log_in_pc(request):
     if request.method=="POST":
-        print("hahahahah")
         try:
-            # print(request.POST)
+        
             data = json.loads(request.body)
             post_identifier = data.get('identifier')
     
@@ -44,12 +43,13 @@ def log_in_pc(request):
             return HttpResponse (status=400)
     elif request.method=="GET":
         return render(request, "personalnumber/pc_login.html")
+
+        
 @csrf_exempt
-def log_in_pc(request):
+def log_in_mobile(request):
     if request.method=="POST":
-        print("hahahahah")
         try:
-            # print(request.POST)
+        
             data = json.loads(request.body)
             post_identifier = data.get('personal_number')
     
@@ -67,4 +67,4 @@ def log_in_pc(request):
         except:
             return HttpResponse (status=400)
     elif request.method=="GET":
-        return render(request, "personalnumber/pc_login.html")
+        return render(request, "personalnumber/mobile_login.html")

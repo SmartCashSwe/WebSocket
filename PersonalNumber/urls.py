@@ -9,5 +9,7 @@ urlpatterns = [
     path("pc/<str:room_name>/", views.pcRoom, name="pcRoom"),
     path("pc_login", views.log_in_pc, name="pc_login"),
     path("pc_login/", views.log_in_pc, name="pc_login"),
+    path("mobile_login/", views.log_in_mobile, name="mobile_login"),
+    path("mobile_login", views.log_in_mobile, name="mobile_login"),
 
 ]
