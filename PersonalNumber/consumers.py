@@ -98,10 +98,25 @@ class PcConsumer(AsyncWebsocketConsumer):
             print(mobile_user.personal_number)
 
     async def disconnect(self, close_code):
-        # await self.channel_layer.group_discard(
-        #     self.pc_identifier,
-        #     self.channel_name
-        # )
+        if "personal_number" not in self.scope["session"]:
+            await self.close()
+            print(self.pc_identifier)
+            await self.channel_layer.group_discard(
+                self.pc_identifier,
+                self.channel_name
+            )
+            # await self.disconnect()
+        else:
+            await self.close()
+            prn=self.scope["session"]["personal_number"]
+            mobile_user=await database_sync_to_async(Mobile_user.objects.get)(personal_number=prn)
+            await self.channel_layer.group_discard(
+                mobile_user.personal_number,
+
+                self.channel_name
+            )
+            # await self.disconnect()
+
         pass
 
     async def get_session_type(self, session):
@@ -110,17 +125,33 @@ class PcConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
-        reciever=text_data_json["reciever"]
+        if "personal_number" in self.scope["session"]:
+            reciever=self.scope["session"]["reciever"]
+            await self.channel_layer.group_send(
+                reciever,
+                {
+                    'type': 'forward_message',
+                    'message': message
+                }
+            )
+        else:
+            print('text_data_json["reciever"]')
+            print(text_data_json["reciever"])
+            print(self.scope["session"]["mobile_users"])
+            print('self.scope.session["mobile_users"]')
+            if text_data_json["reciever"] in self.scope["session"]["mobile_users"]:
+                await self.channel_layer.group_send(
+                    text_data_json["reciever"],
+                    {
+                        'type': 'forward_message',
+                        'message': message
+                    }
+                )
+
+        
 
 
         
-        await self.channel_layer.group_send(
-            reciever,
-            {
-                'type': 'forward_message',
-                'message': message
-            }
-        )
 
     async def forward_message(self, event):
         message = event['message']

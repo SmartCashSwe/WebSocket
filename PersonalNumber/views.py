@@ -13,11 +13,16 @@ def index(request):
 
 @mobile_is_authenticated
 def room(request, room_name):
+
     return render(request, "personalnumber/room.html", {"room_name": room_name})
 
 @pc_is_authenticated
 def pcRoom(request, room_name):
-    return render(request, "personalnumber/pcRoom.html", {"room_name": room_name})
+    mobile_users=json.loads(request.session["mobile_users"])
+    print("mobile_users")
+    print(mobile_users)
+    print("mobile_users")
+    return render(request, "personalnumber/pcRoom.html", {"room_name": room_name, "mobile_users":mobile_users })
 
 
 @csrf_exempt
@@ -44,7 +49,11 @@ def log_in_pc(request):
     elif request.method=="GET":
         return render(request, "personalnumber/pc_login.html")
 
-        
+def log_out_pc(request):
+    if request.method=="POST":
+        request.session.flush()
+        return redirect("prn:pc_login")
+
 @csrf_exempt
 def log_in_mobile(request):
     if request.method=="POST":
@@ -59,7 +68,7 @@ def log_in_mobile(request):
         try:
             request.session.set_expiry(0)
             request.session.set_test_cookie()
-            request.session["pcIdentifier"]=str( data.get('identifier'))
+            request.session["reciever"]=str( data.get('identifier'))
             request.session["personal_number"]=identifier.personal_number
             request.session.modified=True
             # request.session.save()

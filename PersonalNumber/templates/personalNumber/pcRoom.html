@@ -9,8 +9,17 @@
    <body>
       <textarea id="chat-log" cols="100" rows="20"></textarea><br>
       <input id="chat-message-input" type="text" size="100"><br>
+      <!-- <input id="chat-message-reciever" type="" size="100"><br> -->
       <input id="chat-message-submit" type="button" value="Send">
       {{ room_name|json_script:"room-name" }}
+      <br />
+      <label for="reciever">Choose a person:</label>
+
+      <select name="reciever" id="reciever">
+         {% for item in mobile_users %}
+         <option value={{item}}>{{item}}</option>
+         {% endfor %}
+      </select>
       <script>
          const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
@@ -40,11 +49,13 @@
 
          document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
+            var sb=document.getElementById("reciever")
+            console.log(sb.value)
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
                'message': message,
                'room_name': "room1",
-               'reciever':"199808082323"
+               'reciever': sb.value
             }));
 
             messageInputDom.value = '';
