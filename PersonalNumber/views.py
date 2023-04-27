@@ -4,6 +4,8 @@ from .models import Pc_user, Mobile_user
 from .decorators import pc_is_authenticated, mobile_is_authenticated
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
+from core.settings import ARGON_HASH_PARALLELISM, ARGON_HASH_ROUNDS, ARGON_HASH_SALT
+from django.contrib.auth.hashers import  make_password
 
 # Create your views here.
 import json
@@ -29,11 +31,14 @@ def pcRoom(request, room_name):
 def log_in_pc(request):
     if request.method=="POST":
         try:
-        
-            data = json.loads(request.body)
-            post_identifier = data.get('identifier')
+            print(1)
+            # data = json.loads(request.body)
+            print(2)
+            post_identifier = request.POST['identifier']
+            print(3)
     
             identifier=Pc_user.objects.get(pcIdentifier=post_identifier)
+            print(4)
         except:
             return HttpResponse(status=404)
         try:
@@ -42,9 +47,14 @@ def log_in_pc(request):
             request.session["pcIdentifier"]=str( identifier.pcIdentifier)
             request.session["mobile_users"]=json.dumps(identifier.mobile_users)
             request.session.modified=True
+            json_string=json.dumps({"pcIdentifier":identifier.pcIdentifier, "mobile_users":identifier.mobile_users})
+            print("hahahahahahahahahahah")
+            json_token=make_password(password= json_string, salt=ARGON_HASH_SALT)
+            print(json_token)
             # request.session.save()
-            return HttpResponse(status=200)
-        except:
+            return HttpResponse(json_token)
+        except Exception as e:
+            print(e)
             return HttpResponse (status=400)
     elif request.method=="GET":
         return render(request, "personalnumber/pc_login.html")
