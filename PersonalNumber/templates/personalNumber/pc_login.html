@@ -20,6 +20,7 @@
     <script>
       const myFunction = () => {
         var identifier = document.getElementById("identifier").value;
+        console.log(identifier)
         axios
           .post("http://127.0.0.1:8000/prn/pc_login", JSON.stringify({
             "identifier": identifier,

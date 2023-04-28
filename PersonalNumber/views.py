@@ -21,9 +21,7 @@ def room(request, room_name):
 @pc_is_authenticated
 def pcRoom(request, room_name):
     mobile_users=json.loads(request.session["mobile_users"])
-    print("mobile_users")
-    print(mobile_users)
-    print("mobile_users")
+
     return render(request, "personalnumber/pcRoom.html", {"room_name": room_name, "mobile_users":mobile_users })
 
 
@@ -47,14 +45,10 @@ def log_in_pc(request):
             request.session["pcIdentifier"]=str( identifier.pcIdentifier)
             request.session["mobile_users"]=json.dumps(identifier.mobile_users)
             request.session.modified=True
-            json_string=json.dumps({"pcIdentifier":identifier.pcIdentifier, "mobile_users":identifier.mobile_users})
-            print("hahahahahahahahahahah")
-            json_token=make_password(password= json_string, salt=ARGON_HASH_SALT)
-            print(json_token)
-            # request.session.save()
-            return HttpResponse(json_token)
-        except Exception as e:
-            print(e)
+            print(request.session.keys())
+            request.session.save()
+            return HttpResponse(status=200)
+        except:
             return HttpResponse (status=400)
     elif request.method=="GET":
         return render(request, "personalnumber/pc_login.html")

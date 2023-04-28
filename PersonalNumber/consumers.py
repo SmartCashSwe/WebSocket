@@ -3,13 +3,19 @@ from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketCons
 from channels.db import database_sync_to_async
 from .models import Pc_user, Mobile_user
 from asgiref.sync import async_to_sync, sync_to_async
-
+from django.contrib.sessions.models import Session
 
 
 class PcConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         if "personal_number" not in self.scope["session"]:
-            pc=self.scope["session"]["pcIdentifier"]
+            
+            session=await database_sync_to_async( Session)(session_key=self.scope['url_route']['kwargs']['token'])
+            self.scope["session"]=session
+            print('session.get_decoded().get("pcIdentifier")')
+            print(session.get_decoded())
+            print('session.get_decoded().get("pcIdentifier")')
+            pc=session.get_decoded().get("pcIdentifier")
             user=await database_sync_to_async(Pc_user.objects.get)(pcIdentifier=pc)
             self.isPc=True
             self.pc_identifier = self.scope['url_route']['kwargs']['pc_identifier']
