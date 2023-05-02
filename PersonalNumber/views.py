@@ -15,7 +15,7 @@ def index(request):
 
 @mobile_is_authenticated
 def room(request, room_name):
-
+    
     return render(request, "personalnumber/room.html", {"room_name": room_name})
 
 @pc_is_authenticated
