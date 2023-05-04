@@ -15,8 +15,8 @@ def index(request):
 
 @mobile_is_authenticated
 def room(request, room_name):
-    
-    return render(request, "personalnumber/room.html", {"room_name": room_name})
+    session=request.session.session_key
+    return render(request, "personalnumber/room.html", {"room_name": room_name,"session_key":session})
 
 @pc_is_authenticated
 def pcRoom(request, room_name):
@@ -72,7 +72,7 @@ def log_in_mobile(request):
         try:
             request.session.set_expiry(0)
             request.session.set_test_cookie()
-            request.session["reciever"]=str( data.get('identifier'))
+            request.session["receiver"]=str( data.get('identifier'))
             request.session["personal_number"]=identifier.personal_number
             request.session.modified=True
             # request.session.save()
