@@ -51,15 +51,15 @@ class PcConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         print(text_data_json)
         if self.isPc:
-            message = text_data_json["message"]
-            receiver=self.scope["session"]["receiver"]
+            # message = text_data_json["message"]
+            receiver=text_data_json["receiver"]
             print(self.scope["session"].session_key)
             await self.channel_layer.group_send(
                 receiver,
                 {
-                    'message': message,
+                    'message': text_data_json,
                     'type': 'forward_message',
-                    'receiver':"123456789"
+                    'receiver':receiver
                 }
             )
         else:
