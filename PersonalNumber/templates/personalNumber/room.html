@@ -35,7 +35,7 @@
       chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
         console.log(data);
-        document.querySelector("#chat-log").value += data.message + "\n";
+        document.querySelector("#chat-log").value += e.data + "\n";
       };
 
       chatSocket.onclose = function (e) {
@@ -58,8 +58,8 @@
         const info = infoItem.value;
         var json_message = JSON.stringify({
             "request": message,
-            "info":info
-            // receivers: ["123456789"],
+            "info":info,
+            "receivers": ["123456789"],
           });
         console.log(json_message)
         chatSocket.send(
