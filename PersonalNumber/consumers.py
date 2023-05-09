@@ -67,8 +67,9 @@ class PcConsumer(AsyncWebsocketConsumer):
             print(text_data_json["receivers"])
             receivers=text_data_json["receivers"]
             request=text_data_json["request"]
+            info=text_data_json["info"]
             sender=self.scope["session"]["personal_number"]
-            message={"request":request, "sender":sender}
+            message={"request":request, "sender":sender,"info":info}
             for receiver in receivers:
                 await self.channel_layer.group_send(
                     receiver,
