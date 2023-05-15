@@ -23,8 +23,8 @@ class Migration(migrations.Migration):
             name='Pc_user',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('pcIdentifier', models.CharField(max_length=64, unique=True)),
-                ('mobile_users', models.JSONField()),
+                ('username', models.CharField(max_length=64, unique=True)),
+                ('prn', models.JSONField()),
             ],
         ),
     ]

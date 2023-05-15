@@ -16,7 +16,7 @@
       <label for="reciever">Choose a person:</label>
 
       <select name="reciever" id="reciever">
-         {% for item in mobile_users %}
+         {% for item in prn %}
          <option value={{item}}>{{item}}</option>
          {% endfor %}
       </select>
@@ -26,9 +26,7 @@
          const chatSocket = new WebSocket(
             'ws://' +
             window.location.host +
-            '/ws/pc/' +
-            roomName +
-            '/' + "123456789" + '/'
+            '/ws/' 
          );
 
          chatSocket.onmessage = function(e) {

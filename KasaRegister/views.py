@@ -1,19 +1,14 @@
 
-from django.http import HttpResponse, FileResponse
+from django.shortcuts import render,HttpResponse
 from ast import literal_eval
-from django.core.exceptions import ObjectDoesNotExist
 from PersonalNumber.models import Pc_user as user
 import json
 from django.http import JsonResponse
-from django.utils import timezone
-from django.contrib.sessions.models import Session
 import os
-import pathlib
-from django.contrib.auth.hashers import  make_password
-import secrets
 from core.settings import ARGON_HASH_SALT
 import json
 from django.contrib.auth.hashers import  make_password
+
 
 
 class requestHandler:
@@ -37,15 +32,35 @@ json_ready=json.dumps({
 
 
 
+@csrf_exempt
+def log_in_pc(request):
+    if request.method=="POST":
+        try:
+            print(1)
+            # data = json.loads(request.body)
+            print(2)
+            post_identifier = request.POST['identifier']
+            print(3)
+    
+            identifier=Pc_user.objects.get(username=post_identifier)
+            print(4)
+        except:
+            return HttpResponse(status=404)
+        try:
+            request.session.set_expiry(0)
+            request.session.set_test_cookie()
+            request.session["username"]=str( identifier.username)
+            request.session["prn"]=json.dumps(identifier.prn)
+            request.session.modified=True
+            print(request.session.keys())
+            request.session.save()
+            return HttpResponse(status=200)
+        except:
+            return HttpResponse (status=400)
+    elif request.method=="GET":
+        return render(request, "personalnumber/pc_login.html")
 
 
-
-
-#phone
-
-#kasa
-
-#kasa
 def kasa_insertNotification(request):
     if(request.method == "POST"):
         req = requestHandler.extractRequest(request)

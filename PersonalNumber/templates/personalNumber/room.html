@@ -25,11 +25,8 @@
       const chatSocket = new WebSocket(
         "ws://" +
           window.location.host +
-          "/ws/pc/" +
-          roomName +
-          "/" +
-          "123456789" +
-          "/"
+          "/ws/"
+          
       );
 
       chatSocket.onmessage = function (e) {

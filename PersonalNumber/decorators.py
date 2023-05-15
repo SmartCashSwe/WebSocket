@@ -15,9 +15,9 @@ def pc_is_authenticated(view_func, redirect_url="prn:pc_login"):
     def wrapper(request, *args, **kwargs):
         try:
           user=Session.objects.get(session_key=request.session.session_key)
-          post_pcIdentifier=request.session["pcIdentifier"]
+          post_username=request.session["username"]
           
-          pc=Pc_user.objects.get(pcIdentifier=post_pcIdentifier)
+          pc=Pc_user.objects.get(username=post_username)
           return view_func(request,*args, **kwargs)
         except:
           messages.info(request, "You need to be logged in")

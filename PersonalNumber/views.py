@@ -20,38 +20,11 @@ def room(request, room_name):
 
 @pc_is_authenticated
 def pcRoom(request, room_name):
-    mobile_users=json.loads(request.session["mobile_users"])
+    prn=json.loads(request.session["prn"])
 
-    return render(request, "personalnumber/pcRoom.html", {"room_name": room_name, "mobile_users":mobile_users })
+    return render(request, "personalnumber/pcRoom.html", {"room_name": room_name, "prn":prn })
 
 
-@csrf_exempt
-def log_in_pc(request):
-    if request.method=="POST":
-        try:
-            print(1)
-            # data = json.loads(request.body)
-            print(2)
-            post_identifier = request.POST['identifier']
-            print(3)
-    
-            identifier=Pc_user.objects.get(pcIdentifier=post_identifier)
-            print(4)
-        except:
-            return HttpResponse(status=404)
-        try:
-            request.session.set_expiry(0)
-            request.session.set_test_cookie()
-            request.session["pcIdentifier"]=str( identifier.pcIdentifier)
-            request.session["mobile_users"]=json.dumps(identifier.mobile_users)
-            request.session.modified=True
-            print(request.session.keys())
-            request.session.save()
-            return HttpResponse(status=200)
-        except:
-            return HttpResponse (status=400)
-    elif request.method=="GET":
-        return render(request, "personalnumber/pc_login.html")
 
 def log_out_pc(request):
     if request.method=="POST":

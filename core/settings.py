@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     'daphne',
     'users',
-    'chat',
+    'WebSocket',
     'PersonalNumber',
     'KasaRegister',
     'django.contrib.admin',

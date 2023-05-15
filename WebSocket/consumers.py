@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import Pc_user, Mobile_user
+from PersonalNumber.models import Pc_user, Mobile_user
 from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib.sessions.models import Session
 mobile_format={
@@ -23,9 +23,9 @@ class PcConsumer(AsyncWebsocketConsumer):
 
     
     async def disconnect(self, close_code):
-        if "pcIdentifier" in self.scope["session"]:
+        if "username" in self.scope["session"]:
             await self.channel_layer.group_discard(
-                self.scope["session"]["pcIdentifier"],
+                self.scope["session"]["username"],
                 self.channel_name
             )
             await self.close()
@@ -63,7 +63,7 @@ class PcConsumer(AsyncWebsocketConsumer):
                 }
             )
         else:
-            # if text_data_json["receiver"] in self.scope["session"]["mobile_users"]:
+            # if text_data_json["receiver"] in self.scope["session"]["prn"]:
             print(text_data_json["receivers"])
             receivers=text_data_json["receivers"]
             request=text_data_json["request"]
@@ -103,11 +103,11 @@ class PcConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def check_valid_session(self):
         try:
-            if "pcIdentifier" in self.scope["session"]:
-                pc=self.scope["session"]["pcIdentifier"]
+            if "username" in self.scope["session"]:
+                pc=self.scope["session"]["username"]
                 self.isPc=True
-                user = Pc_user.objects.get(pcIdentifier=pc)
-                return user.pcIdentifier
+                user = Pc_user.objects.get(username=pc)
+                return user.username
             elif "personal_number" in self.scope["session"]:
                 mobile=self.scope["session"]["personal_number"]
                 self.isPc=False
