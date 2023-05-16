@@ -1,14 +1,12 @@
 import functools
-from django.shortcuts import redirect
+from django.shortcuts import redirect, HttpResponse
 from django.contrib import messages
-from .models import Mobile_user
 from KasaRegister.models import KasaUser
 from django.contrib.sessions.models import Session
+from .src.auth.auth import requestHandler
 
 
-
-    
-def mobile_is_authenticated(view_func, redirect_url="prn:mobile_login"):
+def pc_is_authenticated(view_func, redirect_url="kasa:pc_login"):
     """
         this decorator ensures that a pc user is logged in,
         if a pc user is logged in, the user will get redirected to 
@@ -17,15 +15,12 @@ def mobile_is_authenticated(view_func, redirect_url="prn:mobile_login"):
     @functools.wraps(view_func)
     def wrapper(request, *args, **kwargs):
         try:
-          print("request.session")
-          print(request.session)
-          print("request.session")
           user=Session.objects.get(session_key=request.session.session_key)
-          post_mobileIdentifier=request.session["personal_number"]
-          
-          pc=Mobile_user.objects.get(personal_number=post_mobileIdentifier)
+          post_username=request.session["username"]
+          encrypted=requestHandler.encrypt(post_username)
+          pc=KasaUser.objects.get(username=encrypted)
           return view_func(request,*args, **kwargs)
         except:
           messages.info(request, "You need to be logged in")
-          return redirect(redirect_url)
+          return HttpResponse(status=401)
     return wrapper

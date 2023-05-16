@@ -31,7 +31,6 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'daphne',
-    'users',
     'WebSocket',
     'PersonalNumber',
     'KasaRegister',

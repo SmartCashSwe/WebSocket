@@ -1,7 +1,8 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.views.decorators.csrf import csrf_exempt
-from .models import Pc_user, Mobile_user
-from .decorators import pc_is_authenticated, mobile_is_authenticated
+from .models import  Mobile_user
+from .decorators import  mobile_is_authenticated
+from KasaRegister.decorators import pc_is_authenticated
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 from core.settings import ARGON_HASH_PARALLELISM, ARGON_HASH_ROUNDS, ARGON_HASH_SALT

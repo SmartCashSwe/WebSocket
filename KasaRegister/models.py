@@ -16,7 +16,7 @@ def get_id_path(instance, filename):
     return os.path.join("file",f"{instance.name}/",filename)
 
 
-class user(models.Model):
+class KasaUser(models.Model):
     username = models.CharField(max_length=200, null=False, blank=False, unique=True)
     prn = models.TextField( null=True, blank=True)
     adress=models.TextField(null=False, max_length=200, blank=False, default='{"adress":"", "postnummer":""}')

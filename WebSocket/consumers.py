@@ -1,9 +1,11 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer
 from channels.db import database_sync_to_async
-from PersonalNumber.models import Pc_user, Mobile_user
+from PersonalNumber.models import  Mobile_user
 from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib.sessions.models import Session
+from KasaRegister.views import requestHandler
+from KasaRegister.models import KasaUser
 mobile_format={
     "request":"",
     "sender":"",
@@ -104,10 +106,17 @@ class PcConsumer(AsyncWebsocketConsumer):
     def check_valid_session(self):
         try:
             if "username" in self.scope["session"]:
+                print("first")
                 pc=self.scope["session"]["username"]
+                print(pc)
+                username=requestHandler.encrypt(pc)
+                print(username)
+                print(3)
+                _user = KasaUser.objects.get(username=username)
+                print(4)
                 self.isPc=True
-                user = Pc_user.objects.get(username=pc)
-                return user.username
+                print("done")
+                return pc
             elif "personal_number" in self.scope["session"]:
                 mobile=self.scope["session"]["personal_number"]
                 self.isPc=False
