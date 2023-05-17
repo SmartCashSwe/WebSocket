@@ -53,12 +53,13 @@ def log_in_pc(request):
     elif request.method=="GET":
         return render(request, "personalnumber/pc_login.html")
 
+@csrf_exempt
 @pc_is_authenticated
 def kasa_insertNotification(request):
     if(request.method == "POST"):
         req = requestHandler.extractRequest(request)
         notification = req["notification"]
-        _username=req["username"]
+        _username=request.session["username"]
         encrypted_username=requestHandler.encrypt(_username)
         try:
             _user = KasaUser.objects.get(username=encrypted_username)
@@ -79,22 +80,26 @@ def kasa_insertNotification(request):
 
 #kasa
 #sending all the articles here from the kassa if there is a yes in the that column
+@csrf_exempt
 @pc_is_authenticated
 def get_all_artiklar(request):
     if request.method =="POST":
+        print("haaaaaaaaaaaaaaaaahaaaaaaaaaaaaaaaaahaaaaaaaaaaaaaaaa")
         req = requestHandler.extractRequest(request)
-        _username=req["username"]
+        _username=request.session["username"]
         encrypted_username=requestHandler.encrypt(_username)
         try:
             _user = KasaUser.objects.get(username=encrypted_username)
         except:
             return HttpResponse(status=404)
         _user.all_products=req ["artiklar"]
+        print("hdjsakhdjkashjkdsahjdkashjkdashjk")
         _user.save()
         return JsonResponse({"access":"yes"})        
 
 
 #kasa
+@csrf_exempt
 @pc_is_authenticated
 def backup(request):
     if request.method=="POST":
@@ -120,13 +125,14 @@ def backup(request):
             return HttpResponse(status=400) 
 
 #kasa
+@csrf_exempt
 @pc_is_authenticated
 def check_backup(request):
 
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
 
-        _username=req["username"]
+        _username=request.session["username"]
         encrypted_username=requestHandler.encrypt(_username)
         try:
             _user = KasaUser.objects.get(username=encrypted_username)
@@ -141,11 +147,12 @@ def check_backup(request):
 
 
 #kasa
+@csrf_exempt
 @pc_is_authenticated
 def sync_pn(request):
     if request.method=="POST":
-        _req=requestHandler.extractRequest(request)
-        _username=_req["username"]
+        req=requestHandler.extractRequest(request)
+        _username=request.session["username"]
         _encrypted=requestHandler.encrypt(_username)
         try:
             _user=KasaUser.objects.get(username=_encrypted)
@@ -156,32 +163,34 @@ def sync_pn(request):
         except:
             pns={}
         pns_keys=pns.keys()
-        _kasa_pn=_req["pn"]
+        _kasa_pn=req["pn"]
         if _kasa_pn not in pns_keys:
             pns[_kasa_pn]=""
         _user.prn=json.dumps(pns)
         _user.save()
         return HttpResponse(status=200)
 
+@csrf_exempt
 @pc_is_authenticated
 def get_x(request):
     if request.method=="POST":
-        _req=requestHandler.extractRequest(request)
-        username=_req["username"]
+        req=requestHandler.extractRequest(request)
+        username=request.session["username"]
         _encrypted=requestHandler.encrypt(username)
         try:
             _user=KasaUser.objects.get(username=_encrypted)
         except:
             return HttpResponse(status=404)
-        _user.xRapport=_req["x_rapport"]
+        _user.xRapport=req["x_rapport"]
         _user.save()
         return HttpResponse(status=200)
 
+@csrf_exempt
 @pc_is_authenticated
 def check_z(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
-        _username=req["username"]
+        _username=request.session["username"]
         encrypted_username=requestHandler.encrypt(_username)
         try:
             _user = KasaUser.objects.get(username=encrypted_username)
@@ -196,11 +205,12 @@ def check_z(request):
         else:
             return(HttpResponse(json.dumps({"last_id":0})))
 
+@csrf_exempt
 @pc_is_authenticated
 def send_z(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
-        _username=req["username"]
+        _username=request.session["username"]
         encrypted_username=requestHandler.encrypt(_username)
         try:
             _user = KasaUser.objects.get(username=encrypted_username)
@@ -227,11 +237,12 @@ def send_z(request):
 
 
 
+@csrf_exempt
 @pc_is_authenticated
 def get_update(request):
     if request.method=="POST":
-        _req=requestHandler.extractRequest(request)
-        _username=_req["username"]
+        req=requestHandler.extractRequest(request)
+        _username=request.session["username"]
         _encrypted=requestHandler.encrypt(_username)
         try:
             _user=KasaUser.objects.get(username=_encrypted)
@@ -243,17 +254,18 @@ def get_update(request):
         return HttpResponse(json.dumps(data))
 
 
+@csrf_exempt
 @pc_is_authenticated
 def send_huvudgrupper(request):
     if request.method=="POST":
-        _req=requestHandler.extractRequest(request)
-        _username=_req["username"]
+        req=requestHandler.extractRequest(request)
+        _username=request.session["username"]
         _encrypted=requestHandler.encrypt(_username)
         try:
             _user=KasaUser.objects.get(username=_encrypted)
         except:
             return(HttpResponse(status=404))
-        _data=_req["data"]
+        _data=req["data"]
         _user.huvudgrupper=json.loads(_data)
         _user.save()
         return HttpResponse(status=200)

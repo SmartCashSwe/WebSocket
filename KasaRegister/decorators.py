@@ -15,9 +15,13 @@ def pc_is_authenticated(view_func, redirect_url="kasa:pc_login"):
     @functools.wraps(view_func)
     def wrapper(request, *args, **kwargs):
         try:
+          print("in")
+          print(view_func)
           user=Session.objects.get(session_key=request.session.session_key)
           post_username=request.session["username"]
+          print(post_username)
           encrypted=requestHandler.encrypt(post_username)
+
           pc=KasaUser.objects.get(username=encrypted)
           return view_func(request,*args, **kwargs)
         except:
