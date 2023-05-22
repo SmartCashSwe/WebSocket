@@ -11,7 +11,7 @@ from django.contrib.auth.hashers import  make_password
 from django.views.decorators.csrf import csrf_exempt
 from .decorators import pc_is_authenticated
 from .src.auth.auth import requestHandler
-
+import secrets
 
 json_ready=json.dumps({
 	"sales": [],
@@ -21,7 +21,30 @@ json_ready=json.dumps({
 })
 
 
+def kasa_signup(request):
+    if(request.method == "POST"):
+        req = requestHandler.extractRequest(request)
+        cheker= False
+        s=secrets.token_hex(32)
+        all_kassaytr=KasaUser.objects.all()
+        _username       = make_password( salt = ARGON_HASH_SALT, password=s)
+        _orgnum         = req["org_num"]
+        _adress         = req["adress"]
+        _postnummer     = req["postnummer"]
+        _company_name   = req["company_name"]
 
+        try:
+            new_user = KasaUser.objects.create(
+                    username        = _username,
+                    org_num         = _orgnum,
+                    company_name    = _company_name,
+                    adress          = json.dumps({"adress":_adress,"postnummer":_postnummer})
+            )
+            new_user.save()
+        except:
+            return HttpResponse(status=500)
+
+        return JsonResponse({"username":s})
 
 @csrf_exempt
 def log_in_pc(request):
@@ -152,7 +175,7 @@ def check_backup(request):
 def sync_pn(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
-        _username=request.session["username"]
+        _username=request.session["username"]        
         _encrypted=requestHandler.encrypt(_username)
         try:
             _user=KasaUser.objects.get(username=_encrypted)
@@ -162,6 +185,7 @@ def sync_pn(request):
             pns:dict=json.loads(_user.prn)
         except:
             pns={}
+        print(pns)
         pns_keys=pns.keys()
         _kasa_pn=req["pn"]
         if _kasa_pn not in pns_keys:
