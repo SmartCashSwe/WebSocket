@@ -3,7 +3,7 @@ from django.shortcuts import render,HttpResponse
 from ast import literal_eval
 from .models import KasaUser
 import json
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 import os
 from core.settings import ARGON_HASH_SALT
 import json
@@ -59,7 +59,8 @@ def log_in_pc(request):
             encrypted_username=requestHandler.encrypt(post_identifier)
             print(encrypted_username)
             identifier=KasaUser.objects.get(username=encrypted_username)
-            print(4)
+            
+            print(identifier.licence)
         except:
             return HttpResponse(status=404)
         try:
@@ -75,6 +76,27 @@ def log_in_pc(request):
             return HttpResponse (status=400)
     elif request.method=="GET":
         return render(request, "personalnumber/pc_login.html")
+
+@csrf_exempt
+@pc_is_authenticated
+def get_company(request:HttpRequest):
+    if request.method=="POST":
+        req=requestHandler.extractRequest(request)
+        _username       = requestHandler.encrypt(request.session["username"])
+        try:
+            user=KasaUser.objects.get(username=_username)
+        except:
+            return HttpResponse(status=404)
+        _orgnum         = req["org_num"]
+        _adress         = req["adress"]
+        _postnummer     = req["postnummer"]
+        _company_name   = req["company_name"]
+        user.org_num        = _orgnum,
+        user.company_name   = _company_name,
+        user.adress         = json.dumps({"adress":_adress,"postnummer":_postnummer})
+        user.save()
+        return HttpResponse(status=200)
+        
 
 @csrf_exempt
 @pc_is_authenticated

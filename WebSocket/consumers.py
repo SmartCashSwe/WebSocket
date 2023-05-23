@@ -12,6 +12,8 @@ mobile_format={
 }
 
 class PcConsumer(AsyncWebsocketConsumer):
+
+
     async def connect(self):
         try:
             user=await self.check_valid_session()
@@ -43,10 +45,6 @@ class PcConsumer(AsyncWebsocketConsumer):
         else:
             await self.close()
             # await self.disconnect()
-
-    
-    
-
 
 
     async def receive(self, text_data):
@@ -80,8 +78,6 @@ class PcConsumer(AsyncWebsocketConsumer):
                         'message': message
                     }
                 )
-
-        
 
 
     async def PcSend(self, event):

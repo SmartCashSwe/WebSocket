@@ -16,5 +16,6 @@ urlpatterns = [
     path('send_huvudgrupper',views.send_huvudgrupper),
     path("pc_login/", views.log_in_pc, name="pc_login"),
     path("pc_login", views.log_in_pc, name="pc_login"),
+    path("get_company", views.get_company, name="get_company"),
 
 ]

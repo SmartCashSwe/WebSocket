@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 from django.dispatch import receiver
 from django.db.models.signals import post_delete, pre_save
+import secrets
 
 
 def get_file_path(instance, filename):
@@ -50,3 +51,13 @@ class IdFiles(models.Model):
     def __str__(self):
         return self.name
     
+
+class Licence(models.Model):
+    valid_until=models.DateField(auto_now=True, blank=False, null=False)
+    licence=models.CharField(auto_created=True, max_length=12)
+    kasa=models.OneToOneField(KasaUser,  on_delete=models.PROTECT, blank=True, null=True  )
+    def save(self, *args, **kwargs):
+        if len(self.licence)<12:
+            self.licence= secrets.token_hex(6)
+
+        super(Licence, self).save(*args, **kwargs) # Call the real save() method
