@@ -59,14 +59,18 @@ def log_in_pc(request):
             encrypted_username=requestHandler.encrypt(post_identifier)
             print(encrypted_username)
             identifier=KasaUser.objects.get(username=encrypted_username)
-            
-            print(identifier.licence)
         except:
             return HttpResponse(status=404)
         try:
+            print(identifier.licence)
+        except Exception as e:
+            print("there is not")
+            print(e)
+            return HttpResponse(status=403)
+        try:
             request.session.set_expiry(0)
             request.session.set_test_cookie()
-            request.session["username"]=str( post_identifier)
+            request.session["username"]=str( encrypted_username)
             request.session.modified=True
             print(request.session.keys())
             request.session.save()
@@ -105,9 +109,8 @@ def kasa_insertNotification(request):
         req = requestHandler.extractRequest(request)
         notification = req["notification"]
         _username=request.session["username"]
-        encrypted_username=requestHandler.encrypt(_username)
         try:
-            _user = KasaUser.objects.get(username=encrypted_username)
+            _user = KasaUser.objects.get(username=_username)
         except:
             return HttpResponse(status=404)
         arr = literal_eval(_user.notifications)
@@ -132,9 +135,8 @@ def get_all_artiklar(request):
         print("haaaaaaaaaaaaaaaaahaaaaaaaaaaaaaaaaahaaaaaaaaaaaaaaaa")
         req = requestHandler.extractRequest(request)
         _username=request.session["username"]
-        encrypted_username=requestHandler.encrypt(_username)
         try:
-            _user = KasaUser.objects.get(username=encrypted_username)
+            _user = KasaUser.objects.get(username=_username)
         except:
             return HttpResponse(status=404)
         _user.all_products=req ["artiklar"]
@@ -151,10 +153,9 @@ def backup(request):
         if "file" in request.FILES:
             # req=requestHandler.extractRequest(request)
             _username=request.POST["username"]
-            encrypted_username=requestHandler.encrypt(_username)
             try:
                 
-                _user = KasaUser.objects.get(username=encrypted_username)
+                _user = KasaUser.objects.get(username=_username)
             except:
                 return HttpResponse(status=404)
             last=_user.backup
@@ -178,9 +179,8 @@ def check_backup(request):
         req=requestHandler.extractRequest(request)
 
         _username=request.session["username"]
-        encrypted_username=requestHandler.encrypt(_username)
         try:
-            _user = KasaUser.objects.get(username=encrypted_username)
+            _user = KasaUser.objects.get(username=_username)
         except:
             return HttpResponse(status=404)
         obj={"last_backup":_user.backup_name()}
@@ -198,9 +198,8 @@ def sync_pn(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
         _username=request.session["username"]        
-        _encrypted=requestHandler.encrypt(_username)
         try:
-            _user=KasaUser.objects.get(username=_encrypted)
+            _user=KasaUser.objects.get(username=_username)
         except:
             return HttpResponse(status=404)
         try:
@@ -222,9 +221,8 @@ def get_x(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
         username=request.session["username"]
-        _encrypted=requestHandler.encrypt(username)
         try:
-            _user=KasaUser.objects.get(username=_encrypted)
+            _user=KasaUser.objects.get(username=username)
         except:
             return HttpResponse(status=404)
         _user.xRapport=req["x_rapport"]
@@ -237,9 +235,8 @@ def check_z(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
         _username=request.session["username"]
-        encrypted_username=requestHandler.encrypt(_username)
         try:
-            _user = KasaUser.objects.get(username=encrypted_username)
+            _user = KasaUser.objects.get(username=_username)
         except:
             return HttpResponse(status=404)
         z=_user.z_rapport
@@ -257,9 +254,8 @@ def send_z(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
         _username=request.session["username"]
-        encrypted_username=requestHandler.encrypt(_username)
         try:
-            _user = KasaUser.objects.get(username=encrypted_username)
+            _user = KasaUser.objects.get(username=_username)
         except:
             return HttpResponse(status=404)
         _z=req["z_rapport"]
@@ -289,9 +285,8 @@ def get_update(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
         _username=request.session["username"]
-        _encrypted=requestHandler.encrypt(_username)
         try:
-            _user=KasaUser.objects.get(username=_encrypted)
+            _user=KasaUser.objects.get(username=_username)
         except:
             return(HttpResponse(status=404))
         data=_user.kassa_list
@@ -306,9 +301,8 @@ def send_huvudgrupper(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
         _username=request.session["username"]
-        _encrypted=requestHandler.encrypt(_username)
         try:
-            _user=KasaUser.objects.get(username=_encrypted)
+            _user=KasaUser.objects.get(username=_username)
         except:
             return(HttpResponse(status=404))
         _data=req["data"]

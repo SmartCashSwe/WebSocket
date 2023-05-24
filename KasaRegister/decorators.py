@@ -22,7 +22,7 @@ def pc_is_authenticated(view_func, redirect_url="kasa:pc_login"):
           print(post_username)
           encrypted=requestHandler.encrypt(post_username)
 
-          pc=KasaUser.objects.get(username=encrypted)
+          pc=KasaUser.objects.get(username=post_username)
           return view_func(request,*args, **kwargs)
         except:
           messages.info(request, "You need to be logged in")

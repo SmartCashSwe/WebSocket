@@ -7,6 +7,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
 from core.settings import ARGON_HASH_PARALLELISM, ARGON_HASH_ROUNDS, ARGON_HASH_SALT
 from django.contrib.auth.hashers import  make_password
+from KasaRegister.models import KasaUser, Licence
 
 # Create your views here.
 import json
@@ -31,6 +32,28 @@ def log_out_pc(request):
     if request.method=="POST":
         request.session.flush()
         return redirect("prn:pc_login")
+
+
+def get_kasa_list(prn):
+    _all=KasaUser.objects.all()
+    arr=[]
+    k=[]
+
+    for _user in _all:
+        arr.append(_user.prn) 
+    for item in arr:
+
+        try:
+            i:dict=json.loads(item)
+            if prn in i.keys():
+                u=KasaUser.objects.get(prn=item)
+                cert=u.licence
+                k.append({"username":u.username,"company_name":u.company_name, "org_nummer":u.org_num})
+        except:
+            pass
+    return k
+ 
+
 
 @csrf_exempt
 def log_in_mobile(request):

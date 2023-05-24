@@ -17,6 +17,9 @@ class PcConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         try:
             user=await self.check_valid_session()
+            print("user")
+            print(user)
+            print("user")
             await self.channel_layer.group_add(
                     user,
                     self.channel_name
@@ -28,8 +31,9 @@ class PcConsumer(AsyncWebsocketConsumer):
     
     async def disconnect(self, close_code):
         if "username" in self.scope["session"]:
+            user=await self.check_valid_session()
             await self.channel_layer.group_discard(
-                self.scope["session"]["username"],
+                user,
                 self.channel_name
             )
             await self.close()
@@ -79,7 +83,7 @@ class PcConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
-
+        
     async def PcSend(self, event):
         print("event")
         print(event)
@@ -108,11 +112,17 @@ class PcConsumer(AsyncWebsocketConsumer):
                 username=requestHandler.encrypt(pc)
                 print(username)
                 print(3)
-                _user = KasaUser.objects.get(username=username)
+                _user = KasaUser.objects.get(username=pc)
                 print(4)
                 self.isPc=True
-                print("done")
-                return pc
+                try:
+                    l=_user.licence
+                    return l.licence
+                except Exception as e:
+                    print("there is not")
+                    print(e)
+                    self.close()
+
             elif "personal_number" in self.scope["session"]:
                 mobile=self.scope["session"]["personal_number"]
                 self.isPc=False
