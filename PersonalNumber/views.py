@@ -8,6 +8,7 @@ from django.contrib.sessions.models import Session
 from core.settings import ARGON_HASH_PARALLELISM, ARGON_HASH_ROUNDS, ARGON_HASH_SALT
 from django.contrib.auth.hashers import  make_password
 from KasaRegister.models import KasaUser, Licence
+from django.http import HttpRequest
 
 # Create your views here.
 import json
@@ -55,6 +56,41 @@ def get_kasa_list(prn):
  
 
 
+
+
+@csrf_exempt
+def choose_kasa(request:HttpRequest):
+    try:
+        _pn=request.session["personal_number"]
+        _user=Mobile_user.objects.get(personal_number=_pn)
+    except:
+        return HttpResponse(status=401)
+    if request.method=="GET":
+        try:
+            kasa_list=get_kasa_list(prn=_pn)
+            json_kasa_list={"kasalist":kasa_list}
+            return render(request,"personalnumber/mobile_choose.html", context=json_kasa_list)
+        except:
+            return HttpResponse(500)
+    elif request.method=="POST":
+        try:
+            data = json.loads(request.body)
+            receiver = data.get('receiver')
+            print(receiver)
+        except Exception as e:
+            return HttpResponse(status=400)
+        try:
+            kasa_user=KasaUser.objects.get(username=receiver)
+        except Exception as e:
+            return HttpResponse(status=403)
+        request.session["receiver"]=kasa_user.username
+        request.session.save()
+        return HttpResponse(status=200)
+            
+
+        
+
+
 @csrf_exempt
 def log_in_mobile(request):
     if request.method=="POST":
@@ -69,7 +105,7 @@ def log_in_mobile(request):
         try:
             request.session.set_expiry(0)
             request.session.set_test_cookie()
-            request.session["receiver"]=str( data.get('identifier'))
+            # request.session["receiver"]=str( data.get('identifier'))
             request.session["personal_number"]=identifier.personal_number
             request.session.modified=True
             # request.session.save()

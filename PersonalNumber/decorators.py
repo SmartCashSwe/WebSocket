@@ -4,7 +4,7 @@ from django.contrib import messages
 from .models import Mobile_user
 from KasaRegister.models import KasaUser
 from django.contrib.sessions.models import Session
-
+from django.http import HttpRequest
 
 
     
@@ -15,17 +15,23 @@ def mobile_is_authenticated(view_func, redirect_url="prn:mobile_login"):
         the url whose view name was passed to the redirect_url parameter
     """
     @functools.wraps(view_func)
-    def wrapper(request, *args, **kwargs):
+    def wrapper(request:HttpRequest, *args, **kwargs):
         try:
           print("request.session")
-          print(request.session)
-          print("request.session")
-          user=Session.objects.get(session_key=request.session.session_key)
           post_mobileIdentifier=request.session["personal_number"]
-          
+          print(request.session["personal_number"])
+          print(post_mobileIdentifier)
+          print("request.session")
           pc=Mobile_user.objects.get(personal_number=post_mobileIdentifier)
-          return view_func(request,*args, **kwargs)
-        except:
+          if "receiver" in request.session:
+            receiver=request.session["receiver"]
+            try:
+              kasa_user=KasaUser.objects.get(username=receiver)
+              return view_func(request,*args, **kwargs)
+            except:
+               return redirect("prn:choose_kasa")
+        except Exception as e:
+          print(e)
           messages.info(request, "You need to be logged in")
           return redirect(redirect_url)
     return wrapper

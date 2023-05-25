@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+
+  <title>Document</title>
+</head>
+<body>
+  <h3>Kasa List</h3>
+  {% for i in kasalist %}
+  {{i.username}}
+  {% endfor %}
+  <br/>
+  <h3>Enter the kasa you want to select</h3>
+  <input id="username" type="text" size="100" /><br />
+  <input
+  id="login-submit"
+  type="button"
+  value="Login"
+  onclick="myFunction()"
+/>
+  <script>
+     const myFunction = () => {
+        var username = document.getElementById("username").value;
+        axios
+          .post("http://127.0.0.1:8000/prn/choose_kasa/", {
+            "receiver": username,
+          })
+          .then(
+            (response) => {
+              console.log(response);
+              if (response.status==200){
+               window.location.pathname="prn/prn/dsa"
+              }
+            },
+            (error) => {
+              console.log(error);
+            }
+          );
+        console.log(window.location.href);
+        console.log("window.location.pathname");
+      };
+  </script>
+</body>
+</html>
