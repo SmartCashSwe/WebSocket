@@ -9,10 +9,10 @@ from core.settings import ARGON_HASH_PARALLELISM, ARGON_HASH_ROUNDS, ARGON_HASH_
 from django.contrib.auth.hashers import  make_password
 from KasaRegister.models import KasaUser, Licence
 from django.http import HttpRequest
-
-# Create your views here.
 import json
 # Create your views here.
+
+
 def index(request):
     return render(request, "personalnumber/index.html")
 
@@ -20,19 +20,6 @@ def index(request):
 def room(request:HttpRequest, room_name):
     session=request.session.session_key
     return render(request, "personalnumber/room.html", {"room_name": room_name,"session_key":session})
-
-@pc_is_authenticated
-def pcRoom(request, room_name):
-    prn=json.loads(request.session["prn"])
-
-    return render(request, "personalnumber/pcRoom.html", {"room_name": room_name, "prn":prn })
-
-
-
-def log_out_pc(request):
-    if request.method=="POST":
-        request.session.flush()
-        return redirect("prn:pc_login")
 
 
 def get_kasa_list(prn):
@@ -54,9 +41,6 @@ def get_kasa_list(prn):
             pass
     return k
  
-
-
-
 
 @csrf_exempt
 def choose_kasa(request:HttpRequest):
@@ -98,9 +82,6 @@ def choose_kasa(request:HttpRequest):
         request.session["receiver"]=json.dumps(users)
         request.session.save()
         return HttpResponse(status=200)
-            
-
-        
 
 
 @csrf_exempt
@@ -126,3 +107,4 @@ def log_in_mobile(request):
             return HttpResponse (status=400)
     elif request.method=="GET":
         return render(request, "personalnumber/mobile_login.html")
+
