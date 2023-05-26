@@ -17,7 +17,7 @@ def index(request):
     return render(request, "personalnumber/index.html")
 
 @mobile_is_authenticated
-def room(request, room_name):
+def room(request:HttpRequest, room_name):
     session=request.session.session_key
     return render(request, "personalnumber/room.html", {"room_name": room_name,"session_key":session})
 
@@ -75,15 +75,27 @@ def choose_kasa(request:HttpRequest):
     elif request.method=="POST":
         try:
             data = json.loads(request.body)
-            receiver = data.get('receiver')
-            print(receiver)
+            receiver = data.get('receivers')
         except Exception as e:
             return HttpResponse(status=400)
         try:
-            kasa_user=KasaUser.objects.get(username=receiver)
+            json_receivers=json.loads(receiver)
+        except:
+            return HttpRequest(status=400)
+        try:
+            users=[]
+            for item in json_receivers:
+                print("kasa_userkasa_userkasa_userkasa_userkasa_userkasa_userkasa_user")
+                print(item)
+                kasa_user=KasaUser.objects.get(username=item)
+                print("kasa_userkasa_userkasa_userkasa_userkasa_userkasa_userkasa_user")
+                users.append(kasa_user.username)
+            print("endendendendendendend")
+            print(users)
+            print("endendendendendendend")
         except Exception as e:
             return HttpResponse(status=403)
-        request.session["receiver"]=kasa_user.username
+        request.session["receiver"]=json.dumps(users)
         request.session.save()
         return HttpResponse(status=200)
             

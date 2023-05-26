@@ -5,7 +5,7 @@ from PersonalNumber.models import  Mobile_user
 from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib.sessions.models import Session
 from KasaRegister.views import requestHandler
-from KasaRegister.models import KasaUser
+from KasaRegister.models import KasaUser,Licence
 mobile_format={
     "request":"",
     "sender":"",
@@ -69,7 +69,7 @@ class PcConsumer(AsyncWebsocketConsumer):
         else:
             # if text_data_json["receiver"] in self.scope["session"]["prn"]:
             print(text_data_json["receivers"])
-            receivers=text_data_json["receivers"]
+            receivers=await self.get_receivers_list()
             request=text_data_json["request"]
             info=text_data_json["info"]
             sender=self.scope["session"]["personal_number"]
@@ -131,6 +131,27 @@ class PcConsumer(AsyncWebsocketConsumer):
             else:
                 return self.close()
         except :
+            self.close()
+
+    @database_sync_to_async
+    def get_receivers_list(self):
+        try:
+            users=self.scope["session"]["receiver"]
+            print(users)
+            json_users=json.loads(users)
+            license_list=[]
+            for item in json_users:
+                try:
+                    user=KasaUser.objects.get(username=item)
+                    li:Licence=user.licence
+                    license_list.append(li.licence)
+                except:
+                    pass
+            return license_list
+        except Exception as e:
+            print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+            print(e)
+            print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
             self.close()
 
         

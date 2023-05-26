@@ -27,7 +27,7 @@
         var username = document.getElementById("username").value;
         axios
           .post("http://127.0.0.1:8000/prn/choose_kasa/", {
-            "receiver": username,
+            "receivers": username,
           })
           .then(
             (response) => {
