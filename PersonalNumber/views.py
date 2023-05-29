@@ -10,6 +10,7 @@ from django.contrib.auth.hashers import  make_password
 from KasaRegister.models import KasaUser, Licence
 from django.http import HttpRequest
 import json
+from KasaRegister.src.auth.auth import requestHandler
 # Create your views here.
 
 
@@ -108,3 +109,190 @@ def log_in_mobile(request):
     elif request.method=="GET":
         return render(request, "personalnumber/mobile_login.html")
 
+
+@csrf_exempt
+@mobile_is_authenticated
+def get_company(request):
+    if request.method=="POST":
+        req=requestHandler.extractRequest(request)
+        _username=request.session["personal_number"]
+        _password=request.session["password"]
+        try:
+            _user=Mobile_user.objects.get(personal_number=_username , password=_password)
+        except:
+            return HttpResponse(status=404)
+        _orgnummer      = _user.org_num
+        _adress         = json.loads(_user.adress)
+        _company_name   = _user.company_name
+        theObj = {"orgnummer":_orgnummer, "adress":_adress,"company_name":_company_name}
+        return HttpResponse(json.dumps(theObj))
+
+
+@csrf_exempt
+@mobile_is_authenticated
+def phone_getNotifications(request):
+
+    if(request.method == "GET"):
+        req=requestHandler.extractRequest(request)
+        _username=request.session["personal_number"]
+        _password=request.session["password"]
+        try:
+            the_user=Mobile_user.objects.get(personal_number=_username , password=_password)
+        except:
+            return HttpResponse(status=404)
+        notiser=the_user.notifications
+        the_user.notifications="[]"
+        the_user.save()
+        return HttpResponse(notiser.replace("'",'"').replace("[","{").replace("]","}"))
+    return HttpResponse(403)
+
+
+@csrf_exempt
+@mobile_is_authenticated
+def send_to_mobile(request:HttpRequest):
+
+    if request.method =="POST":
+        try:
+            the_user=request.session["username"]
+            p=request.session["password"]
+            user=Mobile_user.objects.get(username=the_user, password=p)
+        except:
+            return HttpResponse(status=404)
+        try:
+            _kassor=json.loads(request.session["receiver"])
+            kasa_list=KasaUser.objects.filter(username__in=_kassor)
+            data=[]
+            _user:KasaUser
+            for _user in kasa_list:
+                data.append(_user.all_products)
+            _json=json.dumps(data)
+            return HttpResponse( _json)
+        except:
+            return HttpResponse(500)
+
+
+@csrf_exempt
+@mobile_is_authenticated
+def get_x_rapport(request):
+    if request.method=="POST":
+        try:
+            the_user=request.session["username"]
+            p=request.session["password"]
+            user=Mobile_user.objects.get(username=the_user, password=p)
+        except:
+            return HttpResponse(status=404)
+        try:
+            _kassor=json.loads(request.session["receiver"])
+            kasa_list=KasaUser.objects.filter(username__in=_kassor)
+            data={}
+            _user:KasaUser
+            for _user in kasa_list:
+                data[_user.username]=(_user.all_products)
+            x_rapport=json.dumps(data)
+            return HttpResponse(x_rapport)
+        except:
+            return HttpResponse(status=204)
+
+
+@csrf_exempt
+@mobile_is_authenticated
+def get_z(request):
+    if request.method=="POST":
+        try:
+            the_user=request.session["username"]
+            p=request.session["password"]
+            user=Mobile_user.objects.get(username=the_user, password=p)
+        except:
+            return HttpResponse(status=404)
+        try:
+            _kassor=json.loads(request.session["receiver"])
+            kasa_list=KasaUser.objects.filter(username__in=_kassor)
+        except:
+            return HttpResponse(status=401)
+        prn=request.session["prn"]
+        data={}
+        _user:KasaUser
+        for _user in kasa_list:
+            data[_user.username]=(_user.z_rapport)
+        return HttpResponse(json.dumps(data))
+
+
+@csrf_exempt
+@mobile_is_authenticated
+def update_huvudgrupp(request):
+    if request.method=="POST":
+        _req=requestHandler.extractRequest(request)
+        new_item=_req["item"]
+        old_item=_req["old_item"]
+        # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
+        # _list.index(old_item)
+        _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
+        _list.append(new_item)
+        _user.kasa_send=_list
+        
+        _huvudgrupper:list=_user.huvudgrupper
+        _index=_huvudgrupper.index(old_item)
+        _huvudgrupper[_index]=new_item
+        _user.huvudgrupper=_huvudgrupper
+        
+        _user.save()
+        return HttpResponse(status=200)
+        
+
+@csrf_exempt
+@mobile_is_authenticated
+def update_artikel(request):
+    if request.method=="POST":
+        _req=requestHandler.extractRequest(request)
+        new_item=_req["item"]
+        old_item=_req["old_item"]
+        # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
+        # _list.index(old_item)
+        _list:list=_user.kassa_list["UppdateraArtikel"]
+        _list.append(new_item)
+        _user.kasa_send=_list
+        
+        artiklar:list=_user.all_products
+        _index=artiklar.index(old_item)
+        artiklar[_index]=new_item
+        _user.all_products=artiklar
+        _user.save()
+        return HttpResponse(status=200)
+
+
+@csrf_exempt
+@mobile_is_authenticated
+def laggTill_artikel(request):
+    if request.method=="POST":
+        _req=requestHandler.extractRequest(request)
+        new_item=_req["item"]
+        # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
+        # _list.index(old_item)
+        _list:list=_user.kassa_list["LäggTillArtikel"]
+        _list.append(new_item)
+        _user.kasa_send=_list
+        
+        artiklar:list=_user.all_products
+        artiklar.append(new_item)
+        _user.all_products=artiklar
+        _user.save()
+        return HttpResponse(status=200)
+
+
+@csrf_exempt
+@mobile_is_authenticated
+def laggTill_huvudgrupp(request):
+    if request.method=="POST":
+        _req=requestHandler.extractRequest(request)
+        new_item=_req["item"]
+        # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
+        # _list.index(old_item)
+        _list:list=_user.kassa_list["LäggTillHuvudgrupp"]
+        _list.append(new_item)
+        _user.kasa_send=_list
+        
+        artiklar:list=_user.huvudgrupper
+        artiklar.append(new_item)
+        _user.huvudgrupper=artiklar
+        _user.save()
+        return HttpResponse(status=200)

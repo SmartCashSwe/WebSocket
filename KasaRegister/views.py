@@ -46,6 +46,7 @@ def kasa_signup(request):
 
         return JsonResponse({"username":s})
 
+
 @csrf_exempt
 def log_in_pc(request):
     if request.method=="POST":
@@ -80,6 +81,7 @@ def log_in_pc(request):
             return HttpResponse (status=400)
     elif request.method=="GET":
         return render(request, "personalnumber/pc_login.html")
+
 
 @csrf_exempt
 @pc_is_authenticated
@@ -126,8 +128,7 @@ def kasa_insertNotification(request):
         return HttpResponse(200)
     return HttpResponse(403)
 
-#kasa
-#sending all the articles here from the kassa if there is a yes in the that column
+
 @csrf_exempt
 @pc_is_authenticated
 def get_all_artiklar(request):
@@ -145,7 +146,6 @@ def get_all_artiklar(request):
         return JsonResponse({"access":"yes"})        
 
 
-#kasa
 @csrf_exempt
 @pc_is_authenticated
 def backup(request):
@@ -170,7 +170,7 @@ def backup(request):
         else:
             return HttpResponse(status=400) 
 
-#kasa
+
 @csrf_exempt
 @pc_is_authenticated
 def check_backup(request):
@@ -187,11 +187,6 @@ def check_backup(request):
         return HttpResponse(json.dumps(obj))
     
 
-#phone
-
-
-
-#kasa
 @csrf_exempt
 @pc_is_authenticated
 def sync_pn(request):
@@ -215,6 +210,7 @@ def sync_pn(request):
         _user.save()
         return HttpResponse(status=200)
 
+
 @csrf_exempt
 @pc_is_authenticated
 def get_x(request):
@@ -228,6 +224,7 @@ def get_x(request):
         _user.xRapport=req["x_rapport"]
         _user.save()
         return HttpResponse(status=200)
+
 
 @csrf_exempt
 @pc_is_authenticated
@@ -247,6 +244,7 @@ def check_z(request):
             return(HttpResponse(json.dumps({"last_id":z_p["last_id"]})))
         else:
             return(HttpResponse(json.dumps({"last_id":0})))
+
 
 @csrf_exempt
 @pc_is_authenticated
