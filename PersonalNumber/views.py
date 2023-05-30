@@ -14,7 +14,7 @@ from KasaRegister.src.auth.auth import requestHandler
 # Create your views here.
 
 
-def index(request):
+def index(request:HttpRequest):
     return render(request, "personalnumber/index.html")
 
 @mobile_is_authenticated
@@ -60,19 +60,28 @@ def choose_kasa(request:HttpRequest):
     elif request.method=="POST":
         try:
             data = json.loads(request.body)
+            print("data")
+            print(data)
+            print("data")
             receiver = data.get('receivers')
+            print("receiver")
+            print(receiver)
+            print("receiver")
         except Exception as e:
             return HttpResponse(status=400)
         try:
+            print(receiver)
             json_receivers=json.loads(receiver)
         except:
             return HttpRequest(status=400)
         try:
             users=[]
+            print(json_receivers)
             for item in json_receivers:
                 print("kasa_userkasa_userkasa_userkasa_userkasa_userkasa_userkasa_user")
                 print(item)
-                kasa_user=KasaUser.objects.get(username=item)
+                print("item")
+                kasa_user=KasaUser.objects.get(username=json_receivers[ item])
                 print("kasa_userkasa_userkasa_userkasa_userkasa_userkasa_userkasa_user")
                 users.append(kasa_user.username)
             print("endendendendendendend")
@@ -84,23 +93,32 @@ def choose_kasa(request:HttpRequest):
         request.session.save()
         return HttpResponse(status=200)
 
+@csrf_exempt
+def log_out(request:HttpRequest):
+    if request.method=="POST":
+        print("hdsjakhdjsakhdjksahdjksahljdklsahdjkl")
+        request.session.flush()
+        return HttpResponse(status=200)
 
 @csrf_exempt
-def log_in_mobile(request):
+def log_in_mobile(request:HttpRequest):
     if request.method=="POST":
         try:
         
             data = json.loads(request.body)
             post_identifier = data.get('personal_number')
+            passw = data.get('password')
     
-            identifier=Mobile_user.objects.get(personal_number=post_identifier)
+            identifier=Mobile_user.objects.get(personal_number=post_identifier, password=passw)
         except:
+            print("hshshshsh")
             return HttpResponse(status=404)
         try:
             request.session.set_expiry(0)
             request.session.set_test_cookie()
             # request.session["receiver"]=str( data.get('identifier'))
             request.session["personal_number"]=identifier.personal_number
+            request.session["password"]=identifier.password
             request.session.modified=True
             # request.session.save()
             return HttpResponse(status=200)
@@ -112,7 +130,7 @@ def log_in_mobile(request):
 
 @csrf_exempt
 @mobile_is_authenticated
-def get_company(request):
+def get_company(request:HttpRequest):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
         _username=request.session["personal_number"]
@@ -130,7 +148,7 @@ def get_company(request):
 
 @csrf_exempt
 @mobile_is_authenticated
-def phone_getNotifications(request):
+def phone_getNotifications(request:HttpRequest):
 
     if(request.method == "GET"):
         req=requestHandler.extractRequest(request)
@@ -173,7 +191,7 @@ def send_to_mobile(request:HttpRequest):
 
 @csrf_exempt
 @mobile_is_authenticated
-def get_x_rapport(request):
+def get_x_rapport(request:HttpRequest):
     if request.method=="POST":
         try:
             the_user=request.session["username"]
@@ -196,7 +214,7 @@ def get_x_rapport(request):
 
 @csrf_exempt
 @mobile_is_authenticated
-def get_z(request):
+def get_z(request:HttpRequest):
     if request.method=="POST":
         try:
             the_user=request.session["username"]
@@ -219,11 +237,21 @@ def get_z(request):
 
 @csrf_exempt
 @mobile_is_authenticated
-def update_huvudgrupp(request):
+def update_huvudgrupp(request:HttpRequest):
     if request.method=="POST":
         _req=requestHandler.extractRequest(request)
-        new_item=_req["item"]
-        old_item=_req["old_item"]
+        try:
+            new_item=_req["item"]
+            old_item=_req["old_item"]
+            kasa=_req["kasa"]
+        except:
+            return HttpResponse(status=400)
+        if not kasa in json.loads(request.session["receiver"]):
+            return HttpResponse(status=403)
+        try:
+            _user=KasaUser.objects.get(username=kasa)
+        except:
+            return HttpResponse(status=418)
         # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
         # _list.index(old_item)
         _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
@@ -234,18 +262,27 @@ def update_huvudgrupp(request):
         _index=_huvudgrupper.index(old_item)
         _huvudgrupper[_index]=new_item
         _user.huvudgrupper=_huvudgrupper
-        
         _user.save()
         return HttpResponse(status=200)
         
 
 @csrf_exempt
 @mobile_is_authenticated
-def update_artikel(request):
+def update_artikel(request:HttpRequest):
     if request.method=="POST":
         _req=requestHandler.extractRequest(request)
-        new_item=_req["item"]
-        old_item=_req["old_item"]
+        try:
+            new_item=_req["item"]
+            old_item=_req["old_item"]
+            kasa=_req["kasa"]
+        except:
+            return HttpResponse(status=400)
+        if not kasa in json.loads(request.session["receiver"]):
+            return HttpResponse(status=403)
+        try:
+            _user=KasaUser.objects.get(username=kasa)
+        except:
+            return HttpResponse(status=418)
         # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
         # _list.index(old_item)
         _list:list=_user.kassa_list["UppdateraArtikel"]
@@ -262,11 +299,20 @@ def update_artikel(request):
 
 @csrf_exempt
 @mobile_is_authenticated
-def laggTill_artikel(request):
+def laggTill_artikel(request:HttpRequest):
     if request.method=="POST":
         _req=requestHandler.extractRequest(request)
-        new_item=_req["item"]
-        # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
+        try:
+            new_item=_req["item"]
+            kasa=_req["kasa"]
+        except:
+            return HttpResponse(status=400)
+        if not kasa in json.loads(request.session["receiver"]):
+            return HttpResponse(status=403)
+        try:
+            _user=KasaUser.objects.get(username=kasa)
+        except:
+            return HttpResponse(status=418)        # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
         # _list.index(old_item)
         _list:list=_user.kassa_list["LäggTillArtikel"]
         _list.append(new_item)
@@ -281,11 +327,20 @@ def laggTill_artikel(request):
 
 @csrf_exempt
 @mobile_is_authenticated
-def laggTill_huvudgrupp(request):
+def laggTill_huvudgrupp(request:HttpRequest):
     if request.method=="POST":
         _req=requestHandler.extractRequest(request)
-        new_item=_req["item"]
-        # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
+        try:
+            new_item=_req["item"]
+            kasa=_req["kasa"]
+        except:
+            return HttpResponse(status=400)
+        if not kasa in json.loads(request.session["receiver"]):
+            return HttpResponse(status=403)
+        try:
+            _user=KasaUser.objects.get(username=kasa)
+        except:
+            return HttpResponse(status=418)        # _list:list=_user.kassa_list["UppdateraHuvudgrupp"]
         # _list.index(old_item)
         _list:list=_user.kassa_list["LäggTillHuvudgrupp"]
         _list.append(new_item)
