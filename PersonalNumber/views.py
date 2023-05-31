@@ -81,7 +81,7 @@ def choose_kasa(request:HttpRequest):
                 print("kasa_userkasa_userkasa_userkasa_userkasa_userkasa_userkasa_user")
                 print(item)
                 print("item")
-                kasa_user=KasaUser.objects.get(username=json_receivers[ item])
+                kasa_user=KasaUser.objects.get(username=item)
                 print("kasa_userkasa_userkasa_userkasa_userkasa_userkasa_userkasa_user")
                 users.append(kasa_user.username)
             print("endendendendendendend")
@@ -171,18 +171,18 @@ def send_to_mobile(request:HttpRequest):
 
     if request.method =="POST":
         try:
-            the_user=request.session["username"]
+            the_user=request.session["personal_number"]
             p=request.session["password"]
-            user=Mobile_user.objects.get(username=the_user, password=p)
+            user=Mobile_user.objects.get(personal_number=the_user, password=p)
         except:
             return HttpResponse(status=404)
         try:
             _kassor=json.loads(request.session["receiver"])
             kasa_list=KasaUser.objects.filter(username__in=_kassor)
-            data=[]
+            data={}
             _user:KasaUser
             for _user in kasa_list:
-                data.append(_user.all_products)
+                data[_user.username]=_user.all_products
             _json=json.dumps(data)
             return HttpResponse( _json)
         except:
@@ -194,9 +194,9 @@ def send_to_mobile(request:HttpRequest):
 def get_x_rapport(request:HttpRequest):
     if request.method=="POST":
         try:
-            the_user=request.session["username"]
+            the_user=request.session["personal_number"]
             p=request.session["password"]
-            user=Mobile_user.objects.get(username=the_user, password=p)
+            user=Mobile_user.objects.get(personal_number=the_user, password=p)
         except:
             return HttpResponse(status=404)
         try:
@@ -205,7 +205,7 @@ def get_x_rapport(request:HttpRequest):
             data={}
             _user:KasaUser
             for _user in kasa_list:
-                data[_user.username]=(_user.all_products)
+                data[_user.username]=(_user.xRapport)
             x_rapport=json.dumps(data)
             return HttpResponse(x_rapport)
         except:
@@ -217,9 +217,10 @@ def get_x_rapport(request:HttpRequest):
 def get_z(request:HttpRequest):
     if request.method=="POST":
         try:
-            the_user=request.session["username"]
+            the_user=request.session["personal_number"]
             p=request.session["password"]
-            user=Mobile_user.objects.get(username=the_user, password=p)
+            user=Mobile_user.objects.get(personal_number=the_user, password=p)
+            
         except:
             return HttpResponse(status=404)
         try:
@@ -227,7 +228,6 @@ def get_z(request:HttpRequest):
             kasa_list=KasaUser.objects.filter(username__in=_kassor)
         except:
             return HttpResponse(status=401)
-        prn=request.session["prn"]
         data={}
         _user:KasaUser
         for _user in kasa_list:

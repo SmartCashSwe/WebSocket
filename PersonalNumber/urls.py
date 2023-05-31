@@ -20,6 +20,12 @@ from .views import (
 
 app_name="prn"
 urlpatterns = [
+    path("",                    index,                  name="index"),
+    path("prn/<str:room_name>/",room,                   name="room"),
+    path("mobile_login/",       log_in_mobile,          name="mobile_login"),
+    path("mobile_login",        log_in_mobile,          name="mobile_login"),
+    path("choose_kasa/",        choose_kasa,            name="choose_kasa"),
+    path("logout/",             log_out,                name="log_out"),
     path('send_to_mobile',      send_to_mobile,         name="send_to_mobile"),
     path('getnotifications/',   phone_getNotifications, name="phone_getNotifications"),
     path('update_artikel',      update_artikel,         name="update_artikel"),
@@ -30,11 +36,6 @@ urlpatterns = [
     path('laggTill_huvudgrupp', laggTill_huvudgrupp,    name="laggTill_huvudgrupp"),
     path('update_artikel',      update_artikel,         name="update_artikel"),
     path('update_huvudgrupp',   update_huvudgrupp,      name="update_huvudgrupp"),
-    path("",                    index,                  name="index"),
-    path("prn/<str:room_name>/",room,                   name="room"),
-    path("mobile_login/",       log_in_mobile,          name="mobile_login"),
-    path("mobile_login",        log_in_mobile,          name="mobile_login"),
-    path("choose_kasa/",        choose_kasa,            name="choose_kasa"),
-    path("logout/",             log_out,                name="log_out"),
+
 
 ]

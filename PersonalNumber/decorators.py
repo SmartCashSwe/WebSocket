@@ -29,7 +29,11 @@ def mobile_is_authenticated(view_func, redirect_url="prn:mobile_login"):
             try:
               print(receiver)
               for item in receiver:
+                print(item)
                 kasa_user=KasaUser.objects.get(username=item)
+                print("kasa_user.username")
+                print(kasa_user.username)
+                print("kasa_user.username")
               return view_func(request,*args, **kwargs)
             except Exception as e:
                print("_______________________except____________________________")

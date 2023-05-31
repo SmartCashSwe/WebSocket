@@ -28,22 +28,23 @@
         console.log("username")
         console.log(username)
         console.log("username")
-        console.log({"receivers":username})
-        // axios
-        //   .post("http://127.0.0.1:8000/prn/choose_kasa/", {
-        //     "receivers": username,
-        //   })
-        //   .then(
-        //     (response) => {
-        //       console.log(response);
-        //       if (response.status==200){
-        //        window.location.pathname="prn/prn/dsa"
-        //       }
-        //     },
-        //     (error) => {
-        //       console.log(error);
-        //     }
-        //   );
+        console.log(username)
+        
+        axios
+          .post("http://127.0.0.1:8000/prn/choose_kasa/", 
+          JSON.stringify({"receivers":username})
+          )
+          .then(
+            (response) => {
+              console.log(response);
+              if (response.status==200){
+               window.location.pathname="prn/prn/dsa"
+              }
+            },
+            (error) => {
+              console.log(error);
+            }
+          );
         console.log(window.location.href);
         console.log("window.location.pathname");
       };
