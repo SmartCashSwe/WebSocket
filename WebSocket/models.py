@@ -1,5 +1,5 @@
 from django.db import models
+import os
 
-# Create your models here.
 class KasaSoftware(models.Model):
-    code=models.TextField()
+    file= models.FileField(upload_to="enox")

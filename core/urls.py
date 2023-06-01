@@ -16,10 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-
+from WebSocket.views import get_latest_software, get_enox
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('prn/',include("PersonalNumber.urls")),
-    path('kasa/',include("KasaRegister.urls"))
+    path('kasa/',include("KasaRegister.urls")),
+    path('',get_latest_software),
+    path('enox',get_enox)
 
 ]
