@@ -21,6 +21,7 @@ json_ready=json.dumps({
 })
 
 
+@csrf_exempt
 def kasa_signup(request):
     if(request.method == "POST"):
         req = requestHandler.extractRequest(request)
@@ -297,6 +298,7 @@ def get_update(request):
 @pc_is_authenticated
 def send_huvudgrupper(request):
     if request.method=="POST":
+        print("hdsjakhdjksalhjdakslhjdklas")
         req=requestHandler.extractRequest(request)
         _username=request.session["username"]
         try:
@@ -306,4 +308,5 @@ def send_huvudgrupper(request):
         _data=req["data"]
         _user.huvudgrupper=json.loads(_data)
         _user.save()
+        print("hdsjakhdjksalhjdakslhjdklas")
         return HttpResponse(status=200)
