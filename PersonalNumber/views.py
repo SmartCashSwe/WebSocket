@@ -60,33 +60,18 @@ def choose_kasa(request:HttpRequest):
     elif request.method=="POST":
         try:
             data = json.loads(request.body)
-            print("data")
-            print(data)
-            print("data")
             receiver = data.get('receivers')
-            print("receiver")
-            print(receiver)
-            print("receiver")
         except Exception as e:
             return HttpResponse(status=400)
         try:
-            print(receiver)
             json_receivers=json.loads(receiver)
         except:
             return HttpRequest(status=400)
         try:
             users=[]
-            print(json_receivers)
             for item in json_receivers:
-                print("kasa_userkasa_userkasa_userkasa_userkasa_userkasa_userkasa_user")
-                print(item)
-                print("item")
                 kasa_user=KasaUser.objects.get(username=item)
-                print("kasa_userkasa_userkasa_userkasa_userkasa_userkasa_userkasa_user")
                 users.append(kasa_user.username)
-            print("endendendendendendend")
-            print(users)
-            print("endendendendendendend")
         except Exception as e:
             return HttpResponse(status=403)
         request.session["receiver"]=json.dumps(users)
@@ -96,7 +81,6 @@ def choose_kasa(request:HttpRequest):
 @csrf_exempt
 def log_out(request:HttpRequest):
     if request.method=="POST":
-        print("hdsjakhdjsakhdjksahdjksahljdklsahdjkl")
         request.session.flush()
         return HttpResponse(status=200)
 
@@ -111,7 +95,6 @@ def log_in_mobile(request:HttpRequest):
     
             identifier=Mobile_user.objects.get(personal_number=post_identifier, password=passw)
         except:
-            print("hshshshsh")
             return HttpResponse(status=404)
         try:
             request.session.set_expiry(0)

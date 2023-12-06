@@ -8,6 +8,8 @@ def get_latest_software(request:HttpRequest):
     if request.method=="POST":
       last=KasaSoftware.objects.latest("id")
       return HttpResponse(json.dumps({"pk":last.pk}))
+    elif request.method=="GET":
+       return HttpResponse(200)
 
 @csrf_exempt
 def get_enox(request:HttpRequest):

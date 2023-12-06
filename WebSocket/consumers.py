@@ -17,9 +17,6 @@ class PcConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         try:
             user=await self.check_valid_session()
-            print("user")
-            print(user)
-            print("user")
             await self.channel_layer.group_add(
                     user,
                     self.channel_name
@@ -53,11 +50,9 @@ class PcConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        print(text_data_json)
         if self.isPc:
             # message = text_data_json["message"]
             receiver=text_data_json["receiver"]
-            print(self.scope["session"].session_key)
             await self.channel_layer.group_send(
                 receiver,
                 {
@@ -68,7 +63,6 @@ class PcConsumer(AsyncWebsocketConsumer):
             )
         else:
             # if text_data_json["receiver"] in self.scope["session"]["prn"]:
-            print(text_data_json["receivers"])
             receivers=await self.get_receivers_list()
             request=text_data_json["request"]
             info=text_data_json["info"]
@@ -85,19 +79,14 @@ class PcConsumer(AsyncWebsocketConsumer):
 
         
     async def PcSend(self, event):
-        print("event")
-        print(event)
         message = event['message']
-        print("event")
         await self.send(text_data=json.dumps({
             'message': message
         }))
 
         
     async def forward_message(self, event):
-        print("event forward message")
         message = event['message']
-        print(event)
         await self.send(text_data=json.dumps({
             'message': message
         }))
@@ -106,21 +95,14 @@ class PcConsumer(AsyncWebsocketConsumer):
     def check_valid_session(self):
         try:
             if "username" in self.scope["session"]:
-                print("first")
                 pc=self.scope["session"]["username"]
-                print(pc)
                 username=requestHandler.encrypt(pc)
-                print(username)
-                print(3)
                 _user = KasaUser.objects.get(username=pc)
-                print(4)
                 self.isPc=True
                 try:
                     l=_user.licence
                     return l.licence
                 except Exception as e:
-                    print("there is not")
-                    print(e)
                     self.close()
 
             elif "personal_number" in self.scope["session"]:
@@ -137,7 +119,6 @@ class PcConsumer(AsyncWebsocketConsumer):
     def get_receivers_list(self):
         try:
             users=self.scope["session"]["receiver"]
-            print(users)
             json_users=json.loads(users)
             license_list=[]
             for item in json_users:
@@ -149,17 +130,10 @@ class PcConsumer(AsyncWebsocketConsumer):
                     pass
             return license_list
         except Exception as e:
-            print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
-            print(e)
-            print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
             self.close()
 
         
     @database_sync_to_async
     def print_session(self, token):
-        print("startstartstartstart")
         for s in Session.objects.filter(session_key=token):
             decoded = s.get_decoded()
-            print("decoded")
-            print(decoded)
-        print("endendendendendendend")

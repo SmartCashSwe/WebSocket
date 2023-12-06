@@ -12,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .decorators import pc_is_authenticated
 from .src.auth.auth import requestHandler
 import secrets
+from PersonalNumber.models import Mobile_user
 
 json_ready=json.dumps({
 	"sales": [],
@@ -51,30 +52,30 @@ def kasa_signup(request):
 @csrf_exempt
 def log_in_pc(request):
     if request.method=="POST":
-        print("hahahahahahah")
+        
         try:
-            print(1)
+            
             # data = json.loads(request.body)
-            print(2)
+            
             post_identifier = request.POST['identifier']
-            print(3)
+            
             encrypted_username=requestHandler.encrypt(post_identifier)
-            print(encrypted_username)
+            
             identifier=KasaUser.objects.get(username=encrypted_username)
         except:
             return HttpResponse(status=404)
         try:
             print(identifier.licence)
         except Exception as e:
-            print("there is not")
             print(e)
+            
             return HttpResponse(status=403)
         try:
             request.session.set_expiry(0)
             request.session.set_test_cookie()
             request.session["username"]=str( encrypted_username)
             request.session.modified=True
-            print(request.session.keys())
+            
             request.session.save()
             return HttpResponse(status=200)
         except:
@@ -134,7 +135,7 @@ def kasa_insertNotification(request):
 @pc_is_authenticated
 def get_all_artiklar(request):
     if request.method =="POST":
-        print("haaaaaaaaaaaaaaaaahaaaaaaaaaaaaaaaaahaaaaaaaaaaaaaaaa")
+        
         req = requestHandler.extractRequest(request)
         _username=request.session["username"]
         try:
@@ -142,7 +143,7 @@ def get_all_artiklar(request):
         except:
             return HttpResponse(status=404)
         _user.all_products=req ["artiklar"]
-        print("hdjsakhdjkashjkdsahjdkashjkdashjk")
+        
         _user.save()
         return JsonResponse({"access":"yes"})        
 
@@ -193,22 +194,53 @@ def check_backup(request):
 def sync_pn(request):
     if request.method=="POST":
         req=requestHandler.extractRequest(request)
+        print("req")
+        print(req)
+        print("req")
         _username=request.session["username"]        
         try:
             _user=KasaUser.objects.get(username=_username)
         except:
             return HttpResponse(status=404)
+        # try:
+        pns_list=_user.prn.all()
+        user_list=Mobile_user.objects.all()
+        _kassa_pns=req["pn"]
         try:
-            pns:dict=json.loads(_user.prn)
-        except:
-            pns={}
-        print(pns)
-        pns_keys=pns.keys()
-        _kasa_pn=req["pn"]
-        if _kasa_pn not in pns_keys:
-            pns[_kasa_pn]=""
-        _user.prn=json.dumps(pns)
-        _user.save()
+            print(pns_list.get(personal_number="123456789012"))
+            _user.prn.add(user_list.get(personal_number="123456789012"))
+        except Exception as e:
+            print("ssssssssssssssssssssssssssssssssssssssssssssss")
+            print(e)
+            print("ssssssssssssssssssssssssssssssssssssssssssssss")
+        for item in _kassa_pns:
+            _enc= make_password( salt = ARGON_HASH_SALT, password=item)
+            try:
+                pn=pns_list.get(personal_number=_enc)
+                _user.prn.add(pn)
+            except:
+                pn=Mobile_user.objects.create(personal_number=_enc, certification="")
+                pn.save()  
+                _user.prn.add(pn)
+
+            
+
+
+            # pns: dict=json.loads(_user.prn)
+        # except:
+        #     pns={}
+        # pns_keys=pns.keys()
+        # _kassa_pn = make_password( salt = ARGON_HASH_SALT, password=req["pn"])
+        # try:
+        #     mobile_user=Mobile_user.objects.get(personal_number=_kassa_pn)
+        # except:
+        #     mobile_user=Mobile_user.objects.create(personal_number=_kassa_pn, certification="")
+        #     mobile_user.save()
+        
+        # if _kasa_pn not in pns_keys:
+        #     pns[_kasa_pn]=""
+        # _user.prn=json.dumps(pns)
+        # _user.save()
         return HttpResponse(status=200)
 
 
@@ -298,7 +330,7 @@ def get_update(request):
 @pc_is_authenticated
 def send_huvudgrupper(request):
     if request.method=="POST":
-        print("hdsjakhdjksalhjdakslhjdklas")
+        
         req=requestHandler.extractRequest(request)
         _username=request.session["username"]
         try:
@@ -308,5 +340,5 @@ def send_huvudgrupper(request):
         _data=req["data"]
         _user.huvudgrupper=json.loads(_data)
         _user.save()
-        print("hdsjakhdjksalhjdakslhjdklas")
+        
         return HttpResponse(status=200)

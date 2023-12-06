@@ -4,22 +4,21 @@ import os
 from django.dispatch import receiver
 from django.db.models.signals import post_delete, pre_save
 import secrets
-
+from PersonalNumber.models import Mobile_user
 
 def get_file_path(instance, filename):
-    print(instance.company_name)
     now=datetime.now()
     return os.path.join("dropbox",f"{instance.company_name}/{now.year}{now.month}{now.day}/",filename)
 
 def get_id_path(instance, filename):
-    print(instance.name)
     now=datetime.now()
     return os.path.join("file",f"{instance.name}/",filename)
 
 
 class KasaUser(models.Model):
     username = models.CharField(max_length=200, null=False, blank=False, unique=True)
-    prn = models.TextField( null=True, blank=True)
+    # prn = models.TextField( null=True, blank=True)
+    prn=models.ManyToManyField(Mobile_user)
     adress=models.TextField(null=False, max_length=200, blank=False, default='{"adress":"", "postnummer":""}')
     fcm_token = models.TextField()
     notifications = models.TextField()
