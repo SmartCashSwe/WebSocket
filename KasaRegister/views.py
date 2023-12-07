@@ -206,17 +206,15 @@ def sync_pn(request):
         pns_list=_user.prn.all()
         user_list=Mobile_user.objects.all()
         _kassa_pns=req["pn"]
-        try:
-            print(pns_list.get(personal_number="123456789012"))
-            _user.prn.add(user_list.get(personal_number="123456789012"))
-        except Exception as e:
-            print("ssssssssssssssssssssssssssssssssssssssssssssss")
-            print(e)
-            print("ssssssssssssssssssssssssssssssssssssssssssssss")
+        _user.prn.clear()
         for item in _kassa_pns:
+            print("new iteration")
             _enc= make_password( salt = ARGON_HASH_SALT, password=item)
+            print(_enc)
             try:
-                pn=pns_list.get(personal_number=_enc)
+                print(1)
+                pn=Mobile_user.objects.get(personal_number=_enc)
+                print(pn)
                 _user.prn.add(pn)
             except:
                 pn=Mobile_user.objects.create(personal_number=_enc, certification="")
@@ -224,8 +222,8 @@ def sync_pn(request):
                 _user.prn.add(pn)
 
             
-
-
+# argon2$argon2id$v=19$m=102400,t=2,p=8$SHNkZXMyODNqczg$KGZHbMFaQK9mJBsLHCj3Djts5AVNq+LUzN5B6JzntMc
+# argon2$argon2id$v=19$m=102400,t=2,p=8$SHNkZXMyODNqczg$KGZHbMFaQK9mJBsLHCj3Djts5AVNq+LUzN5B6JzntMc
             # pns: dict=json.loads(_user.prn)
         # except:
         #     pns={}

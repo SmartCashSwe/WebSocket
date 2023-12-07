@@ -21,7 +21,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('prn/',include("PersonalNumber.urls")),
     path('kasa/',include("KasaRegister.urls")),
-    path('',get_latest_software),
-    path('enox',get_enox)
+    path('version',get_latest_software),
+    path('enox',get_enox),
+    path('', include("Revisorer.urls"))
 
 ]

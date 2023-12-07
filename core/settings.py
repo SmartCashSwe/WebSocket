@@ -32,8 +32,6 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     'daphne',
     'WebSocket',
-    'PersonalNumber',
-    'KasaRegister',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'bootstrap5',
+    'PersonalNumber',
+    'KasaRegister',
+    'Revisorer',
+
 ]
 
 MIDDLEWARE = [
