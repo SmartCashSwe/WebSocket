@@ -1,8 +1,0 @@
-{
-    "typescript.tsserver.watchOptions": {
-
-    },
-    "emmet.includeLanguages": {
-        "django-html": "html",
-   }
-}

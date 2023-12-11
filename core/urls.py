@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from WebSocket.views import get_latest_software, get_enox
+from django.conf.urls.static import static
+from django.conf import settings
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('prn/',include("PersonalNumber.urls")),
@@ -25,4 +28,4 @@ urlpatterns = [
     path('enox',get_enox),
     path('', include("Revisorer.urls"))
 
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
