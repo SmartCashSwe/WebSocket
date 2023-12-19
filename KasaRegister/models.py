@@ -5,6 +5,16 @@ from django.dispatch import receiver
 from django.db.models.signals import post_delete, pre_save
 import secrets
 from PersonalNumber.models import Mobile_user
+from Revisorer.models import Revisor
+
+
+
+TYPECHOICES=(
+    ("MonthSie4","MonthSie4"),
+    ("MonthPdf","MonthPdf"),
+    ("ZSie4","ZSie4"),
+    ("ZPdf","ZPdf"),
+    )
 
 def get_file_path(instance, filename):
     now=datetime.now()
@@ -13,6 +23,7 @@ def get_file_path(instance, filename):
 def get_id_path(instance, filename):
     now=datetime.now()
     return os.path.join("file",f"{instance.name}/",filename)
+
 
 
 class KasaUser(models.Model):
@@ -32,6 +43,8 @@ class KasaUser(models.Model):
     all_products=models.JSONField(default=[])
     kassa_list=models.JSONField(default={"LäggTillArtikel":[], "UppdateraArtikel":[], "LäggTillHuvudgrupp":[],"UppdateraHuvudgrupp":[]})
     huvudgrupper=models.JSONField(default=[])
+    revisorer=models.ManyToManyField(Revisor, related_name="kasa_system")
+    bokforing=models.JSONField(default={"test":""})
 
     def backup_name(self):
         if self.backup!=None and self.backup!="":
@@ -60,3 +73,5 @@ class Licence(models.Model):
             self.licence= secrets.token_hex(6)
 
         super(Licence, self).save(*args, **kwargs) # Call the real save() method
+
+

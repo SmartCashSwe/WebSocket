@@ -1,11 +1,12 @@
 from django.urls import path
 from .views import (
-index
-    
+choose_kassasystem,
+    log_in_revisor
     )
 
 app_name="Revisorer"
 urlpatterns = [
-    path("",                    index,                  name="index"),
+    path("",                    choose_kassasystem,                  name="index"),
+    path("login",                    log_in_revisor,                  name="index"),
 
 ]
