@@ -20,7 +20,9 @@ def log_in_revisor(request:HttpRequest):
     try:
         print(request.POST)
         _email=request.POST["email"]
+        print(_email)
         _password=request.POST["password"]
+        print(_password)
         
     except:
         return HttpResponse(status=401)
