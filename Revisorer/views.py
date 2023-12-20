@@ -18,17 +18,27 @@ def log_out_admin(request:HttpRequest):
 @csrf_exempt
 def log_in_revisor(request:HttpRequest):
     try:
+        print(request.POST)
         _email=request.POST["email"]
         _password=request.POST["password"]
+        
     except:
         return HttpResponse(status=401)
     try:
         _revisor=Revisor.objects.get(email=_email, password=_password)
     except:
         return HttpResponse(status=401)
+    try:
+        _kassa_list=_revisor.kasa_system.all()
+    except Exception as e:
+        return HttpResponse(204)
+    try:
+        user_1=_kassa_list[0].username
+    except:
+        return HttpResponse(204)
     request.session["email"]=_email
-    request.session["password"]=_password
-    request.session["KassaSystem"]=""
+    request.session["password"]=_password    
+    request.session["KassaSystem"]=  user_1
     request.session.save()
     return HttpResponse(status=200)
 
@@ -69,19 +79,17 @@ def choose_kassasystem(request:HttpRequest):
         try:
             _email=request.session["email"]
             _password=request.session["password"]
-            _org_num=request.POST["org_num"]
-            _kassa=request.POST["num"]
         except:
             return HttpResponse(status=401)
         try:
             _revisor=Revisor.objects.get(email=_email, password=_password)
         except:
             return HttpResponse(status=401)
-        print(1)
         try:
+            _org_num=request.POST["org_num"]
+            _kassa=request.POST["num"]
             _kassa=KasaUser.objects.get(id=_kassa, org_num=_org_num)
         except Exception as e:
-            print(e)
             return HttpResponse(status=404)
         request.session["KassaSystem"]=_kassa.username
         request.session.save()
@@ -92,8 +100,21 @@ def choose_kassasystem(request:HttpRequest):
 
 @revisor_is_authenticated    
 def z_rapport_list(request:HttpRequest):
+    if request.method=="GET":
+        try:
+            _email=request.session["email"]
+            _password=request.session["password"]
+            _revisor=Revisor.objects.get(email=_email, password=_password)
+        except:
+            return HttpResponse(status=401)
+        try:
+            _kassa_username=request.session["KassaSystem"]
+            _kassa=KasaUser.objects.get(username=_kassa_username)
+        except:
+            return HttpResponse(status=404)
+        z_list=_kassa.z_rapport
 
-    return HttpResponse(status=200)
+        return JsonResponse(z_list)
 
 
 @revisor_is_authenticated    
