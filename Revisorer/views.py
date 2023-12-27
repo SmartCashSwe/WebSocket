@@ -16,6 +16,38 @@ def log_out_admin(request:HttpRequest):
 
 
 @csrf_exempt
+def check_logged_in(request:HttpRequest):
+    try:
+        _email=request.session["email"]
+        _password=request.session["password"]    
+        
+        
+    except:
+        return HttpResponse(status=401)
+    try:
+        _revisor=Revisor.objects.get(email=_email, password=_password)
+    except:
+        return HttpResponse(status=401)
+    try:
+        _kassa_list=_revisor.kasa_system.all()
+    except Exception as e:
+        return HttpResponse(204)
+    try:
+        user_1=_kassa_list[0].username
+    except:
+        return HttpResponse(204)
+    try:
+        session_kassa=request.session["KassaSystem"]
+        if session_kassa =="":
+            request.session["KassaSystem"]=  user_1
+    except:
+            request.session["KassaSystem"]=  user_1
+    request.session.save()
+    
+    return HttpResponse(status=200)
+
+
+@csrf_exempt
 def log_in_revisor(request:HttpRequest):
     try:
         print(request.POST)
@@ -38,10 +70,9 @@ def log_in_revisor(request:HttpRequest):
         user_1=_kassa_list[0].username
     except:
         return HttpResponse(204)
-    request.session["email"]=_email
-    request.session["password"]=_password    
     request.session["KassaSystem"]=  user_1
     request.session.save()
+    
     return HttpResponse(status=200)
 
 
@@ -70,11 +101,20 @@ def choose_kassasystem(request:HttpRequest):
         except Exception as e:
             return HttpResponse(204)
         kassa_list_obj={}
-        for item in _kassa_list:
-            obj={"org_num":item.org_num, "company_name":item.company_name}
-            kassa_list_obj[item.org_num]=obj
+        _chosen_kassa_id:str=None
         try:
-            return JsonResponse({"kassa_list":kassa_list_obj})
+            session_kassa=request.session["KassaSystem"]    
+            _kassa_user=KasaUser.objects.get(username=session_kassa)
+            _chosen_kassa_id=_kassa_user.pk
+        except:
+            None
+        for item in _kassa_list:
+            obj={"org_num":item.org_num, "company_name":item.company_name, "chosen":False}
+            kassa_list_obj[item.org_num]=obj
+            if (_chosen_kassa_id == item.pk):
+                obj["chosen"]=True
+        try:
+            return JsonResponse({"kassa_list":kassa_list_obj,"mail":_revisor.email})
         except Exception as e:
             return HttpResponse(status=500)
     elif request.method=="POST":
@@ -101,22 +141,32 @@ def choose_kassasystem(request:HttpRequest):
 
 
 @revisor_is_authenticated    
+@csrf_exempt
 def z_rapport_list(request:HttpRequest):
     if request.method=="GET":
         try:
+            
             _email=request.session["email"]
+            
             _password=request.session["password"]
+            
             _revisor=Revisor.objects.get(email=_email, password=_password)
+            
         except:
+            
             return HttpResponse(status=401)
         try:
+            
             _kassa_username=request.session["KassaSystem"]
+            
             _kassa=KasaUser.objects.get(username=_kassa_username)
+            
         except:
+            
             return HttpResponse(status=404)
-        z_list=_kassa.z_rapport
-
-        return JsonResponse(z_list)
+            
+        z_list=_kassa.z_rapport["items"]
+        return JsonResponse({"items":z_list+ z_list+z_list+z_list+z_list+z_list+z_list+z_list+z_list+z_list+z_list+z_list})
 
 
 @revisor_is_authenticated    
