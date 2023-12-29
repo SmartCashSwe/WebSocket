@@ -319,7 +319,7 @@ def get_update(request):
         except:
             return(HttpResponse(status=404))
         data=_user.kassa_list
-        _user.kassa_list={"LäggTillArtikel":[], "UppdateraArtikel":[], "LäggTillHuvudgrupp":[],"UppdateraHuvudgrupp":[]}
+        _user.kassa_list={"LäggTillArtikel":[], "UppdateraArtikel":[], "LäggTillHuvudgrupp":[],"UppdateraHuvudgrupp":[],"UppdateraBokforing":[]}
         _user.save()
         return HttpResponse(json.dumps(data))
 
@@ -338,5 +338,32 @@ def send_huvudgrupper(request):
         _data=req["data"]
         _user.huvudgrupper=json.loads(_data)
         _user.save()
+        
+        return HttpResponse(status=200)
+
+@csrf_exempt
+@pc_is_authenticated
+def kasa_get_bokforing(request):
+    if request.method=="POST":
+        print(1)
+        req=requestHandler.extractRequest(request)
+        print(2)
+        _username=request.session["username"]
+        print(3)
+        try:
+            print(4)
+            _user=KasaUser.objects.get(username=_username)
+            print(5)
+        except:
+            print(6)
+            return(HttpResponse(status=404))
+            print(7)
+        print(8)
+        _data=req["data"]
+        print(9)
+        _user.bokforing=_data
+        print(10)
+        _user.save()
+        print(11)
         
         return HttpResponse(status=200)

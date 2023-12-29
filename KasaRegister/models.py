@@ -41,7 +41,7 @@ class KasaUser(models.Model):
     xRapport=models.JSONField(default={"test":""})
     z_rapport=models.JSONField(blank=True, null=True, default={"test":""})
     all_products=models.JSONField(default=[])
-    kassa_list=models.JSONField(default={"LäggTillArtikel":[], "UppdateraArtikel":[], "LäggTillHuvudgrupp":[],"UppdateraHuvudgrupp":[]})
+    kassa_list=models.JSONField(default={"LäggTillArtikel":[], "UppdateraArtikel":[], "LäggTillHuvudgrupp":[],"UppdateraHuvudgrupp":[], "UppdateraBokforing":[]})
     huvudgrupper=models.JSONField(default=[])
     revisorer=models.ManyToManyField(Revisor, related_name="kasa_system")
     bokforing=models.JSONField(default={"test":""})

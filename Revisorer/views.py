@@ -180,11 +180,50 @@ def z_rapport_pdf(request:HttpRequest):
 
     return HttpResponse(status=200)
 
-
+@csrf_exempt
 @revisor_is_authenticated    
 def bokforing(request:HttpRequest):
+    if request.method=="GET":
+        try:
+            _email=request.session["email"]
+            _password=request.session["password"]
+            _revisor=Revisor.objects.get(email=_email, password=_password)
+        except:
+            return HttpResponse(status=401)
+        try:
+            _kassa_username=request.session["KassaSystem"]
+            _kassa=KasaUser.objects.get(username=_kassa_username)
+        except:
+            return HttpResponse(status=404)
+        bokforing=_kassa.bokforing
+        return JsonResponse(bokforing)
+    elif request.method =="POST":
+        try:
+            _email=request.session["email"]
+            _password=request.session["password"]
+            _revisor=Revisor.objects.get(email=_email, password=_password)
+        except:
+            return HttpResponse(status=401)
+        try:
+            _kassa_username=request.session["KassaSystem"]
+            _kassa=KasaUser.objects.get(username=_kassa_username)
+        except:
+            return HttpResponse(status=404)
+        _kassa_list=_kassa.kassa_list
+        _kassa_bokforing=_kassa.bokforing
+        _to_be_updated=[]
+        _sent_bokforing=json.loads( request.POST["bokforing"])
+        for item, val in _sent_bokforing.items():
+            if _kassa_bokforing[item]!=val:
+                _to_be_updated.append({item:val})
+        print(_to_be_updated)
+        if (len(_to_be_updated)>0):
+            _kassa.bokforing=_sent_bokforing
+        _kassa_list["UppdateraBokforing"]=_to_be_updated
+        _kassa.kassa_list=_kassa_list
+        _kassa.save()
+        return HttpResponse(status=200)
 
-    return HttpResponse(status=200)
 
 
 

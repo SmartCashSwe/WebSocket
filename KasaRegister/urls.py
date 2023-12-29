@@ -17,5 +17,6 @@ urlpatterns = [
     path("pc_login", views.log_in_pc, name="pc_login"),
     path("get_company", views.get_company, name="get_company"),
     path("signup", views.kasa_signup, name="get_company"),
+    path("get_bokforing", views.kasa_get_bokforing, name="get_bokforing"),
 
 ]

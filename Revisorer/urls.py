@@ -4,6 +4,7 @@ choose_kassasystem,
     log_in_revisor,
     z_rapport_list,
     check_logged_in,
+    bokforing
     )
 
 app_name="Revisorer"
@@ -12,5 +13,6 @@ urlpatterns = [
     path("login/",                    log_in_revisor,                  name="login_revisor"),
     path("check_session/",                    check_logged_in,                  name="login_revisor"),
     path("z_list",                    z_rapport_list,                  name="z_list_revisor"),
+    path("bokforing",                    bokforing,                  name="bokforing_revisor"),
 
 ]
