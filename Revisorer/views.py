@@ -18,30 +18,42 @@ def log_out_admin(request:HttpRequest):
 @csrf_exempt
 def check_logged_in(request:HttpRequest):
     try:
+        print(1)
         _email=request.session["email"]
+        print(2)
         _password=request.session["password"]    
+        print(3)
         
         
     except:
         return HttpResponse(status=401)
     try:
+        print(4)
         _revisor=Revisor.objects.get(email=_email, password=_password)
+        print(5)
     except:
         return HttpResponse(status=401)
     try:
+        print(6)
         _kassa_list=_revisor.kasa_system.all()
     except Exception as e:
         return HttpResponse(204)
     try:
+        print(7)
         user_1=_kassa_list[0].username
     except:
         return HttpResponse(204)
     try:
+        print(8)
         session_kassa=request.session["KassaSystem"]
+        print(9)
         if session_kassa =="":
+            print(10)
             request.session["KassaSystem"]=  user_1
+            print(11)
     except:
             request.session["KassaSystem"]=  user_1
+    print(12)
     request.session.save()
     
     return HttpResponse(status=200)
@@ -76,7 +88,8 @@ def log_in_revisor(request:HttpRequest):
     return HttpResponse(status=200)
 
 
-@revisor_is_authenticated    
+# @revisor_is_authenticated    
+@csrf_exempt
 def log_out_revisor(request:HttpRequest):
     request.session.flush()
     return HttpResponse(status=200)
@@ -223,6 +236,26 @@ def bokforing(request:HttpRequest):
         _kassa.kassa_list=_kassa_list
         _kassa.save()
         return HttpResponse(status=200)
+
+
+
+@csrf_exempt
+@revisor_is_authenticated    
+def download_file(request:HttpRequest):
+    if request.method =="POST":
+        try:
+            _email=request.session["email"]
+            _password=request.session["password"]
+            _revisor=Revisor.objects.get(email=_email, password=_password)
+        except:
+            return HttpResponse(status=401)
+        try:
+            _kassa_username=request.session["KassaSystem"]
+            _kassa=KasaUser.objects.get(username=_kassa_username)
+        except:
+            return HttpResponse(status=404)
+        file=_kassa.download
+        return FileResponse(file)
 
 
 

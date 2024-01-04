@@ -20,6 +20,10 @@ def get_file_path(instance, filename):
     now=datetime.now()
     return os.path.join("dropbox",f"{instance.company_name}/{now.year}{now.month}{now.day}/",filename)
 
+def get_download_path(instance, filename):
+    now=datetime.now()
+    return os.path.join("dropbox",f"{instance.company_name}/downloads/",filename)
+
 def get_id_path(instance, filename):
     now=datetime.now()
     return os.path.join("file",f"{instance.name}/",filename)
@@ -38,6 +42,7 @@ class KasaUser(models.Model):
     backup=models.FileField( upload_to=get_file_path, null=True, blank=True)
     backup2=models.FileField(upload_to=get_file_path, null=True,blank=True)
     backup3=models.FileField(upload_to=get_file_path, null=True,blank=True)
+    download=models.FileField(upload_to=get_download_path, null=True,blank=True)
     xRapport=models.JSONField(default={"test":""})
     z_rapport=models.JSONField(blank=True, null=True, default={"test":""})
     all_products=models.JSONField(default=[])
@@ -45,6 +50,7 @@ class KasaUser(models.Model):
     huvudgrupper=models.JSONField(default=[])
     revisorer=models.ManyToManyField(Revisor, related_name="kasa_system")
     bokforing=models.JSONField(default={"test":""})
+    
 
     def backup_name(self):
         if self.backup!=None and self.backup!="":
