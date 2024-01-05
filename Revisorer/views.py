@@ -67,23 +67,32 @@ def log_in_revisor(request:HttpRequest):
         print(_email)
         _password=request.POST["password"]
         print(_password)
-        
     except:
         return HttpResponse(status=401)
     try:
+        print(1)
         _revisor=Revisor.objects.get(email=_email, password=_password)
+        print(2)
     except:
         return HttpResponse(status=401)
     try:
+        print(3)
         _kassa_list=_revisor.kasa_system.all()
+        print(4)
     except Exception as e:
         return HttpResponse(204)
     try:
+        print(5)
         user_1=_kassa_list[0].username
+        print(6)
     except:
         return HttpResponse(204)
+    request.session["email"]=_email
+    request.session["password"]=_password
     request.session["KassaSystem"]=  user_1
+    print(8)
     request.session.save()
+    print(9)
     
     return HttpResponse(status=200)
 
@@ -255,6 +264,8 @@ def download_file(request:HttpRequest):
         except:
             return HttpResponse(status=404)
         file=_kassa.download
+        # _kassa.download.delete()
+        # _kassa.save()
         return FileResponse(file)
 
 
