@@ -246,12 +246,8 @@ def bokforing(request:HttpRequest):
         _kassa.save()
         return HttpResponse(status=200)
 
-
-
-@csrf_exempt
-@revisor_is_authenticated    
-def download_file(request:HttpRequest):
-    if request.method =="POST":
+def get_mail_from_revisor (request:HttpRequest):
+    if request.method=="POST":
         try:
             _email=request.session["email"]
             _password=request.session["password"]
@@ -263,11 +259,8 @@ def download_file(request:HttpRequest):
             _kassa=KasaUser.objects.get(username=_kassa_username)
         except:
             return HttpResponse(status=404)
-        file=_kassa.download
-        # _kassa.download.delete()
-        # _kassa.save()
-        return FileResponse(file)
-
-
-
+        
+        _rapport=request.POST["rapport"]
+        _kassa.kassa_rapport=_rapport
+        return HttpResponse(status=200)
 
